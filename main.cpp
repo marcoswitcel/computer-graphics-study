@@ -4,7 +4,7 @@
 #include <vector>
 #include <math.h>
 
-#include "color-and-image.h"
+#include "color_and_image.h"
 
 using namespace std;
 

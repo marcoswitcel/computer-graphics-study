@@ -1,5 +1,5 @@
-#ifndef _COLOR_AND_IMAGE_H_
-#define _COLOR_AND_IMAGE_H_
+#ifndef COLOR_AND_IMAGE_H
+#define COLOR_AND_IMAGE_H
 
 #include <stdint.h>
 #include <vector>
@@ -18,4 +18,4 @@ struct FrameBuffer
     std::vector<S_RGB> buffer;
 };
 
-#endif
+#endif // COLOR_AND_IMAGE_H
