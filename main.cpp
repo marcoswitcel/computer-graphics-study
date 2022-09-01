@@ -25,6 +25,19 @@ void saveFrameBuffertoPPMFile(const FrameBuffer &frameBuffer, const char *filena
     ofs.close();
 }
 
+void drawRect(FrameBuffer &frameBuffer, uint32_t xStart, uint32_t yStart, uint32_t rectWidth, uint32_t rectHeight, S_RGB color)
+{
+    auto &buffer = frameBuffer.buffer;
+    for (auto currentX = xStart; currentX < xStart + rectWidth; currentX++)
+    {
+        for (auto currentY = yStart; currentY < yStart + rectHeight; currentY++)
+        {
+            auto &rgb = buffer[currentY * frameBuffer.width + currentX];
+            rgb = color;
+        }   
+    }
+}
+
 int main(int argc, char *argv[])
 {
     constexpr unsigned int width = 1024;
@@ -43,6 +56,10 @@ int main(int argc, char *argv[])
         rgb.g = 0;
         rgb.b = 0;
     }
+
+    drawRect(frameBuffer, 10, 10, 250, 75, S_RGB { 255, 255, 0 });
+
+    drawRect(frameBuffer, 20, 20, 200, 60, S_RGB { 0, 255, 255 });
 
     saveFrameBuffertoPPMFile(frameBuffer, "image.ppm");
 
