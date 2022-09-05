@@ -25,6 +25,17 @@ void saveFrameBuffertoPPMFile(const FrameBuffer &frameBuffer, const char *filena
     ofs.close();
 }
 
+/**
+ * @todo João, verificar as bordas para renderizar direito e corrigir problemas de overlfow
+ * @brief Desenha um retângulo em ângulo reto
+ * 
+ * @param frameBuffer 
+ * @param xStart 
+ * @param yStart 
+ * @param rectWidth 
+ * @param rectHeight 
+ * @param color 
+ */
 void drawRect(FrameBuffer &frameBuffer, uint32_t xStart, uint32_t yStart, uint32_t rectWidth, uint32_t rectHeight, S_RGB color)
 {
     auto &buffer = frameBuffer.buffer;
