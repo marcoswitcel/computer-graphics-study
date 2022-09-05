@@ -49,6 +49,20 @@ void drawRect(FrameBuffer &frameBuffer, uint32_t xStart, uint32_t yStart, uint32
     }
 }
 
+void drawLine(FrameBuffer &frameBuffer, uint32_t xStart, uint32_t yStart, uint32_t xEnd, uint32_t yEnd, S_RGB color)
+{
+    auto &buffer = frameBuffer.buffer;
+
+    for (float t = 0.0; t < 1.0; t += 0.1)
+    {
+        auto x = xStart + (xEnd - xStart) * t;
+        auto y = yStart + (yEnd - yStart) * t;
+
+        auto &rgb = buffer[y * frameBuffer.width + x];
+        rgb = color;
+    }
+}
+
 int main(int argc, char *argv[])
 {
     constexpr unsigned int width = 1024;
@@ -71,6 +85,8 @@ int main(int argc, char *argv[])
     drawRect(frameBuffer, 10, 10, 250, 75, S_RGB { 255, 255, 0 });
 
     drawRect(frameBuffer, 20, 20, 200, 60, S_RGB { 0, 255, 255 });
+
+    drawLine(frameBuffer, 10, 20, 300, 300, S_RGB { 255, 255, 255 });
 
     saveFrameBuffertoPPMFile(frameBuffer, "image.ppm");
 
