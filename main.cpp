@@ -8,7 +8,7 @@
 
 using namespace std;
 
-void saveFrameBuffertoPPMFile(const FrameBuffer &frameBuffer, const char *filename)
+void saveFrameBufferToPPMFile(const FrameBuffer &frameBuffer, const char *filename)
 {
     auto dimx = frameBuffer.width, dimy = frameBuffer.height;
     ofstream ofs(filename, ios_base::out | ios_base::binary);
@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
 
     drawLine(frameBuffer, 10, 20, 300, 300, S_RGB { 255, 255, 255 });
 
-    saveFrameBuffertoPPMFile(frameBuffer, "image.ppm");
+    saveFrameBufferToPPMFile(frameBuffer, "image.ppm");
 
     return 0;
 }
