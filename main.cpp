@@ -63,16 +63,31 @@ void drawLine(FrameBuffer &frameBuffer, uint32_t xStart, uint32_t yStart, uint32
     }
 }
 
-void drawLine2(FrameBuffer &frameBuffer, uint32_t xStart, uint32_t yStart, uint32_t xEnd, uint32_t yEnd, S_RGB color)
+void drawLine2(FrameBuffer &frameBuffer, int32_t xStart, int32_t yStart, int32_t xEnd, int32_t yEnd, S_RGB color)
 {
     auto &buffer = frameBuffer.buffer;
+    bool steep = false; 
+
+    if (std::abs(xStart-xEnd) < std::abs(yStart-yEnd)) {
+        std::swap(xStart, yStart);
+        std::swap(xEnd, yEnd);
+        steep = true;
+    }
+
+    if (xStart > xEnd) {
+        std::swap(xStart, xEnd);
+        std::swap(yStart, yEnd);
+    }
 
     for (uint32_t x = xStart; x <= xEnd; x++)
     {
         float t = (x - xStart) / (float) (xEnd - xStart);
         uint32_t y = yStart * (1. - t) + yEnd * t;
 
-        auto &rgb = buffer[y * frameBuffer.width + x];
+        uint32_t color_index = (steep)
+            ? x * frameBuffer.width + y
+            : y * frameBuffer.width + x;
+        auto &rgb = buffer[color_index];
         rgb = color;
     }
 }
