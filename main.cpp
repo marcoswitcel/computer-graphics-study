@@ -55,8 +55,8 @@ void drawLine(FrameBuffer &frameBuffer, uint32_t xStart, uint32_t yStart, uint32
 
     for (float t = 0.0; t < 1.0; t += 0.1)
     {
-        auto x = xStart + (xEnd - xStart) * t;
-        auto y = yStart + (yEnd - yStart) * t;
+        uint32_t x = xStart + (xEnd - xStart) * t;
+        uint32_t y = yStart + (yEnd - yStart) * t;
 
         auto &rgb = buffer[y * frameBuffer.width + x];
         rgb = color;
