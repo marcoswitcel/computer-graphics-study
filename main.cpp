@@ -63,6 +63,20 @@ void drawLine(FrameBuffer &frameBuffer, uint32_t xStart, uint32_t yStart, uint32
     }
 }
 
+void drawLine2(FrameBuffer &frameBuffer, uint32_t xStart, uint32_t yStart, uint32_t xEnd, uint32_t yEnd, S_RGB color)
+{
+    auto &buffer = frameBuffer.buffer;
+
+    for (uint32_t x = xStart; x <= xEnd; x++)
+    {
+        float t = (x - xStart) / (float) (xEnd - xStart);
+        uint32_t y = yStart * (1. - t) + yEnd * t;
+
+        auto &rgb = buffer[y * frameBuffer.width + x];
+        rgb = color;
+    }
+}
+
 int main(int argc, char *argv[])
 {
     constexpr unsigned int width = 1024;
@@ -75,18 +89,24 @@ int main(int argc, char *argv[])
         buffer : vector<S_RGB>(width * height),
     };
 
+    const auto RED = S_RGB { 255, 0, 0 };
+    const auto WHITE = S_RGB { 255, 255, 255 };
+    const auto BLACK = S_RGB { 0, 0, 0 };
+
     for (S_RGB &rgb : frameBuffer.buffer)
     {
-        rgb.r = 255;
-        rgb.g = 0;
-        rgb.b = 0;
+        rgb = BLACK;
     }
 
-    drawRect(frameBuffer, 10, 10, 250, 75, S_RGB { 255, 255, 0 });
+    /* drawRect(frameBuffer, 10, 10, 250, 75, S_RGB { 255, 255, 0 });
 
     drawRect(frameBuffer, 20, 20, 200, 60, S_RGB { 0, 255, 255 });
 
-    drawLine(frameBuffer, 10, 20, 300, 300, S_RGB { 255, 255, 255 });
+    drawLine(frameBuffer, 10, 20, 300, 300, S_RGB { 255, 255, 255 }); */
+
+    drawLine2(frameBuffer, 13, 20, 80, 40,  WHITE); 
+    drawLine2(frameBuffer, 20, 13, 40, 80,  RED); 
+    drawLine2(frameBuffer, 80, 40, 13, 20,  RED);
 
     saveFrameBufferToPPMFile(frameBuffer, "image.ppm");
 
