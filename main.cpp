@@ -119,9 +119,11 @@ int main(int argc, char *argv[])
 
     drawLine(frameBuffer, 10, 20, 300, 300, S_RGB { 255, 255, 255 }); */
 
-    drawLine2(frameBuffer, 13, 20, 80, 40,  WHITE); 
-    drawLine2(frameBuffer, 20, 13, 40, 80,  RED); 
-    drawLine2(frameBuffer, 80, 40, 13, 20,  RED);
+    /* for (int i = 0; i < 1000000; i++) { */
+        drawLine2(frameBuffer, 13, 20, 80, 40,  WHITE); 
+        drawLine2(frameBuffer, 20, 13, 40, 80,  RED); 
+        drawLine2(frameBuffer, 80, 40, 13, 20,  RED);
+    /* } */
 
     saveFrameBufferToPPMFile(frameBuffer, "image.ppm");
 
