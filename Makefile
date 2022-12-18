@@ -12,3 +12,7 @@ run-and-display: run
 
 clear:
 	rm ./*.ppm ./*.out
+
+profile:
+	g++ -ggdb -g -pg -O0 main.cpp
+	gprof
