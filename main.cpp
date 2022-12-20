@@ -5,6 +5,7 @@
 #include <math.h>
 
 #include "color_and_image.h"
+#include "ObjModel.cpp"
 
 using namespace std;
 
@@ -126,6 +127,8 @@ int main(int argc, char *argv[])
     /* } */
 
     saveFrameBufferToPPMFile(frameBuffer, "image.ppm");
+
+    ObjModel* model = ObjModel::readObjModel("teapot.obj");
 
     return 0;
 }
