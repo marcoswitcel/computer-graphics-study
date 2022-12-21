@@ -5,7 +5,7 @@
 #include <math.h>
 
 #include "color_and_image.h"
-#include "ObjModel.cpp"
+#include "obj_model.cpp"
 
 using namespace std;
 
