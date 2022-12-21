@@ -88,8 +88,34 @@ void drawLine2(FrameBuffer &frameBuffer, int32_t xStart, int32_t yStart, int32_t
         uint32_t color_index = (steep)
             ? x * frameBuffer.width + y
             : y * frameBuffer.width + x;
+        
+        if (color_index > buffer.size()) {
+            continue;
+        };
+
         auto &rgb = buffer[color_index];
         rgb = color;
+    }
+}
+
+void drawWireframe(ObjModel* model, FrameBuffer* frameBuffer) {
+    const auto width = frameBuffer->width;
+    const auto height = frameBuffer->height;
+
+    for (int i = 0; i < model->facesLength(); i++)
+    {
+        auto face = model->getFace(i);
+        for (int v = 0; v < 3; v++)
+        {
+            Vec3f v0 = model->getVert(face[v]);
+            Vec3f v1 = model->getVert(face[(v+1)%3]);
+            int x0 = (v0.x*150.0) + width/2.0;
+            int y0 = (v0.y*150.0) + height/4.0;
+            int x1 = (v1.x*150.0) + width/2.0;
+            int y1 = (v1.y*150.0) + height/4.0;
+
+            drawLine2(*frameBuffer, x0, y0, x1, y1, S_RGB { 255, 255, 255 });
+        }
     }
 }
 
@@ -121,14 +147,16 @@ int main(int argc, char *argv[])
     drawLine(frameBuffer, 10, 20, 300, 300, S_RGB { 255, 255, 255 }); */
 
     /* for (int i = 0; i < 1000000; i++) { */
-        drawLine2(frameBuffer, 13, 20, 80, 40,  WHITE); 
-        drawLine2(frameBuffer, 20, 13, 40, 80,  RED); 
-        drawLine2(frameBuffer, 80, 40, 13, 20,  RED);
+        // drawLine2(frameBuffer, 13, 20, 80, 40,  WHITE); 
+        // drawLine2(frameBuffer, 20, 13, 40, 80,  RED); 
+        // drawLine2(frameBuffer, 80, 40, 13, 20,  RED);
     /* } */
 
-    saveFrameBufferToPPMFile(frameBuffer, "image.ppm");
-
     ObjModel* model = ObjModel::readObjModel("teapot.obj");
+
+    drawWireframe(model, &frameBuffer);
+    
+    saveFrameBufferToPPMFile(frameBuffer, "image.ppm");
 
     return 0;
 }

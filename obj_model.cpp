@@ -45,15 +45,23 @@ ObjModel* ObjModel::readObjModel(const char *filename) {
             iss >> vec.x;
             iss >> vec.y;
             iss >> vec.z;
+
             objModel->verts.push_back(vec);
         } else if (!line.compare(0, 2, "f ")) {
             std::vector<int> f;
             int itrash, idx;
             iss >> trash;
-            while (iss >> idx >> trash >> itrash >> trash >> itrash) {
-                idx--;
-                f.push_back(idx);
-            }
+            
+            iss >> idx;
+            idx--;
+            f.push_back(idx);
+            iss >> idx;
+            idx--;
+            f.push_back(idx);
+            iss >> idx;
+            idx--;
+            f.push_back(idx);
+            
             objModel->faces.push_back(f);
         }
     }
