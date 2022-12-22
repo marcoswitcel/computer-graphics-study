@@ -84,7 +84,8 @@ void drawLine2(FrameBuffer &frameBuffer, int32_t xStart, int32_t yStart, int32_t
     }
 }
 
-void drawWireframe(ObjModel* model, FrameBuffer* frameBuffer) {
+void drawWireframe(ObjModel* model, FrameBuffer* frameBuffer)
+{
     const auto width = frameBuffer->width;
     const auto height = frameBuffer->height;
 
@@ -105,6 +106,14 @@ void drawWireframe(ObjModel* model, FrameBuffer* frameBuffer) {
     }
 }
 
+void fill(FrameBuffer &frameBuffer, S_RGB color)
+{
+    for (S_RGB &rgb : frameBuffer.buffer)
+    {
+        rgb = color;
+    }
+}
+
 int main(int argc, char *argv[])
 {
     constexpr unsigned int width = 1024;
@@ -121,10 +130,7 @@ int main(int argc, char *argv[])
     const auto WHITE = S_RGB { 255, 255, 255 };
     const auto BLACK = S_RGB { 0, 0, 0 };
 
-    for (S_RGB &rgb : frameBuffer.buffer)
-    {
-        rgb = BLACK;
-    }
+    fill(frameBuffer, BLACK);
 
     /* drawRect(frameBuffer, 10, 10, 250, 75, S_RGB { 255, 255, 0 });
     drawRect(frameBuffer, 20, 20, 200, 60, S_RGB { 0, 255, 255 }); */
