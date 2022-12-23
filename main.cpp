@@ -3,6 +3,7 @@
 #include <fstream>
 #include <vector>
 #include <math.h>
+#include <assert.h>
 
 #include "color_and_image.h"
 #include "obj_model.cpp"
@@ -114,6 +115,31 @@ void fill(FrameBuffer &frameBuffer, S_RGB color)
     }
 }
 
+void flipImageInXAxis(FrameBuffer &frameBuffer)
+{
+    auto &buffer = frameBuffer.buffer;
+    const auto width = frameBuffer.width;
+    const auto height = frameBuffer.height;
+    const unsigned int halfHeight = frameBuffer.height / 2;
+    const bool even = (frameBuffer.height % 2) == 0;
+
+    assert(width * height <= buffer.size());
+    if (width * height > buffer.size()) return;
+
+    S_RGB temp;
+    for (int row = 0; row < halfHeight; row++)
+    {
+        for (int col = 0; col < width; col++)
+        {
+            auto &upperColor  = buffer[row * width + col];
+            auto &bottomColor  = buffer[(height - row - 1) * width + col];
+            temp = upperColor;
+            upperColor = bottomColor;
+            bottomColor = temp;
+        }   
+    }
+}
+
 int main(int argc, char *argv[])
 {
     constexpr unsigned int width = 1024;
@@ -138,6 +164,8 @@ int main(int argc, char *argv[])
     ObjModel* model = ObjModel::readObjModel("teapot.obj");
 
     drawWireframe(model, &frameBuffer);
+
+    flipImageInXAxis(frameBuffer);
     
     saveFrameBufferToPPMFile(frameBuffer, "image.ppm");
 
