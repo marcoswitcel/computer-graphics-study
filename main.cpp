@@ -158,10 +158,10 @@ int main(int argc, char *argv[])
 
     fill(frameBuffer, BLACK);
 
-    /* drawRect(frameBuffer, 10, 10, 250, 75, S_RGB { 255, 255, 0 });
-    drawRect(frameBuffer, 20, 20, 200, 60, S_RGB { 0, 255, 255 }); */
-
     ObjModel* model = ObjModel::readObjModel("teapot.obj");
+
+    drawRect(frameBuffer, 10, 10, 700, 100, S_RGB { 255, 255, 0 });
+    drawRect(frameBuffer, 20, 20, 150, 730, S_RGB { 0, 255, 255 });
 
     drawWireframe(model, &frameBuffer);
 
