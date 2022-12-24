@@ -85,6 +85,11 @@ void drawLine2(FrameBuffer &frameBuffer, int32_t xStart, int32_t yStart, int32_t
     }
 }
 
+inline void drawLine(FrameBuffer &frameBuffer, Vec2i a, Vec2i b, S_RGB color)
+{
+    drawLine2(frameBuffer, a.x, a.y, b.x, b.y, color);
+}
+
 void drawWireframe(ObjModel* model, FrameBuffer* frameBuffer)
 {
     const auto width = frameBuffer->width;
@@ -105,6 +110,17 @@ void drawWireframe(ObjModel* model, FrameBuffer* frameBuffer)
             drawLine2(*frameBuffer, x0, y0, x1, y1, S_RGB { 255, 255, 255 });
         }
     }
+}
+
+void triangle(FrameBuffer &frameBuffer, Vec2i a, Vec2i b, Vec2i c, S_RGB color)
+{
+    if (a.y > b.y) std::swap(a, b);
+    if (a.y > c.y) std::swap(a, c);
+    if (b.y > c.y) std::swap(b, c);
+
+    drawLine(frameBuffer, a, b, S_RGB { 255, 0, 0 });
+    drawLine(frameBuffer, b, c, S_RGB { 0, 255, 0 });
+    drawLine(frameBuffer, c, a, S_RGB { 0, 0, 255 });
 }
 
 void fill(FrameBuffer &frameBuffer, S_RGB color)
@@ -140,7 +156,7 @@ void flipImageInXAxis(FrameBuffer &frameBuffer)
     }
 }
 
-int main(int argc, char *argv[])
+void renderTeapotScene()
 {
     constexpr unsigned int width = 1024;
     constexpr unsigned int height = 768;
@@ -168,6 +184,39 @@ int main(int argc, char *argv[])
     flipImageInXAxis(frameBuffer);
     
     saveFrameBufferToPPMFile(frameBuffer, "image.ppm");
+}
+
+void renderTriangleTestScene()
+{
+    constexpr unsigned width = 600;
+    constexpr unsigned height = 400;
+
+    const auto RED = S_RGB { 255, 0, 0 };
+    const auto WHITE = S_RGB { 255, 255, 255 };
+    const auto BLACK = S_RGB { 0, 0, 0 };
+
+
+    FrameBuffer frameBuffer = {
+        width: width,
+        height: height,
+        buffer: vector<S_RGB>(width * height),
+    };
+
+    Vec2i a = { .x = 100, .y = 100 };
+    Vec2i b = { .x = 150, .y = 150 };
+    Vec2i c = { .x = 200, .y = 100 };
+
+    fill(frameBuffer, BLACK);
+    triangle(frameBuffer, a, b, c, S_RGB { 0, 0, 0 });
+    flipImageInXAxis(frameBuffer);
+    
+    saveFrameBufferToPPMFile(frameBuffer, "image.ppm");
+}
+
+int main(int argc, char *argv[])
+{
+    //renderTeapotScene();
+    renderTriangleTestScene();
 
     return 0;
 }
