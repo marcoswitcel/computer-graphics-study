@@ -118,9 +118,12 @@ void triangle(FrameBuffer &frameBuffer, Vec2i a, Vec2i b, Vec2i c, S_RGB color)
     if (a.y > c.y) std::swap(a, c);
     if (b.y > c.y) std::swap(b, c);
 
-    drawLine(frameBuffer, a, b, S_RGB { 255, 0, 0 });
+    /* drawLine(frameBuffer, a, b, S_RGB { 255, 0, 0 });
     drawLine(frameBuffer, b, c, S_RGB { 0, 255, 0 });
-    drawLine(frameBuffer, c, a, S_RGB { 0, 0, 255 });
+    drawLine(frameBuffer, c, a, S_RGB { 0, 0, 255 }); */
+    drawLine(frameBuffer, a, b, color);
+    drawLine(frameBuffer, b, c, color);
+    drawLine(frameBuffer, c, a, color);
 }
 
 void fill(FrameBuffer &frameBuffer, S_RGB color)
@@ -192,6 +195,7 @@ void renderTriangleTestScene()
     constexpr unsigned height = 400;
 
     const auto RED = S_RGB { 255, 0, 0 };
+    const auto GREEN = S_RGB { 0, 255, 0 };
     const auto WHITE = S_RGB { 255, 255, 255 };
     const auto BLACK = S_RGB { 0, 0, 0 };
 
@@ -206,8 +210,17 @@ void renderTriangleTestScene()
     Vec2i b = { .x = 150, .y = 150 };
     Vec2i c = { .x = 200, .y = 100 };
 
+/*     triangle(frameBuffer, a, b, c, S_RGB { 255, 0, 0 }); */
+
     fill(frameBuffer, BLACK);
-    triangle(frameBuffer, a, b, c, S_RGB { 0, 0, 0 });
+    Vec2i t0[3] = {Vec2i { .x = 10, .y=70 },   Vec2i { .x = 50, .y=160 },  Vec2i { .x = 70, .y=80 }}; 
+    Vec2i t1[3] = {Vec2i { .x = 180, .y=50 },  Vec2i { .x = 150, .y=1 },   Vec2i { .x = 70, .y=180 }}; 
+    Vec2i t2[3] = {Vec2i { .x = 180, .y=150 }, Vec2i { .x = 120, .y=160 }, Vec2i { .x = 130, .y=180 }}; 
+    triangle(frameBuffer, t0[0], t0[1], t0[2], RED); 
+    triangle(frameBuffer, t1[0], t1[1], t1[2], WHITE); 
+    triangle(frameBuffer, t2[0], t2[1], t2[2], GREEN);
+
+
     flipImageInXAxis(frameBuffer);
     
     saveFrameBufferToPPMFile(frameBuffer, "image.ppm");
