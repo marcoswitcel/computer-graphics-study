@@ -1,4 +1,4 @@
-# Conjunto de algoritmos e estruturas de dados implementadas para realizar computação gráfica
+# Estudo e implementação de algoritmos e estruturas de dados para computação gráfica
 
 Algoritmos e exemplos desenvolvidos para estudo, prática e diversão.
 
