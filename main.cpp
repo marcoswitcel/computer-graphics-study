@@ -118,12 +118,62 @@ void triangle(FrameBuffer &frameBuffer, Vec2i a, Vec2i b, Vec2i c, S_RGB color)
     if (a.y > c.y) std::swap(a, c);
     if (b.y > c.y) std::swap(b, c);
 
+    assert(a.y <= c.y && "deveria ser menor ou igual sempre");
     /* drawLine(frameBuffer, a, b, S_RGB { 255, 0, 0 });
     drawLine(frameBuffer, b, c, S_RGB { 0, 255, 0 });
     drawLine(frameBuffer, c, a, S_RGB { 0, 0, 255 }); */
     drawLine(frameBuffer, a, b, color);
     drawLine(frameBuffer, b, c, color);
     drawLine(frameBuffer, c, a, color);
+}
+
+void triangle2(FrameBuffer &frameBuffer, Vec2i a, Vec2i b, Vec2i c, S_RGB color)
+{
+    auto &buffer = frameBuffer.buffer;
+
+    if (a.y > b.y) std::swap(a, b);
+    if (a.y > c.y) std::swap(a, c);
+    if (b.y > c.y) std::swap(b, c);
+
+    assert(a.y <= c.y && "deveria ser menor ou igual sempre");
+
+    int totalHeight = c.y -  a .y;
+    for (int y = a.y; y < b.y; y++)
+    {
+        int segmentHeight = b.y - a.y + 1;
+        float alpha = (float) (y - a.y) / totalHeight;
+        float beta  = (float) (y - a.y) / segmentHeight;
+
+        Vec2i p0 = {
+            .x = a.x + ((int) ((c.x - a.x) * alpha)),
+            .y = a.y + ((int) ((c.y - a.y) * alpha)),
+        };
+
+        Vec2i p1 = {
+            .x = a.x + ((int) ((b.x - a.x) * beta)),
+            .y = a.y + ((int) ((b.y - a.y) * beta)),
+        };
+
+        uint32_t color_index = y * frameBuffer.width + p0.x;
+        
+        if (color_index > buffer.size()) {
+            continue;
+        };
+
+        auto &rgb = buffer[color_index];
+        rgb = S_RGB { 255, 10, 0};
+
+        color_index = y * frameBuffer.width + p1.x;
+        
+        if (color_index > buffer.size()) {
+            continue;
+        };
+
+        rgb = buffer[color_index];
+        rgb = S_RGB { 10, 255, 0};
+
+        std::cout << p0.x << " - " << p1.x << std::endl;
+    }
 }
 
 void fill(FrameBuffer &frameBuffer, S_RGB color)
@@ -220,6 +270,10 @@ void renderTriangleTestScene()
     triangle(frameBuffer, t1[0], t1[1], t1[2], WHITE); 
     triangle(frameBuffer, t2[0], t2[1], t2[2], GREEN);
 
+    // @todo João, terminar de implementar aqui, bem bugado
+    triangle2(frameBuffer, t0[0], t0[1], t0[2], RED); 
+    triangle2(frameBuffer, t1[0], t1[1], t1[2], WHITE); 
+    triangle2(frameBuffer, t2[0], t2[1], t2[2], GREEN);
 
     flipImageInXAxis(frameBuffer);
     
