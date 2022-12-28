@@ -160,9 +160,7 @@ void triangle2(FrameBuffer &frameBuffer, Vec2i a, Vec2i b, Vec2i c, S_RGB color)
             continue;
         };
 
-        S_RGB *rgb;
-        rgb = &buffer[color_index];
-        *rgb = S_RGB { 255, 0, 0};
+        buffer[color_index] = S_RGB { 255, 0, 0};
 
         color_index = y * frameBuffer.width + p1.x;
         
@@ -170,8 +168,7 @@ void triangle2(FrameBuffer &frameBuffer, Vec2i a, Vec2i b, Vec2i c, S_RGB color)
             continue;
         };
 
-        rgb = &buffer[color_index];
-        *rgb = S_RGB { 10, 255, 0};
+        buffer[color_index] = S_RGB { 10, 255, 0};
     }
 }
 
