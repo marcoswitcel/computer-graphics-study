@@ -137,7 +137,7 @@ void triangle2(FrameBuffer &frameBuffer, Vec2i a, Vec2i b, Vec2i c, S_RGB color)
 
     assert(a.y <= c.y && "deveria ser menor ou igual sempre");
 
-    int totalHeight = c.y -  a .y;
+    int totalHeight = c.y -  a.y;
     for (int y = a.y; y < b.y; y++)
     {
         int segmentHeight = b.y - a.y + 1;
@@ -160,8 +160,9 @@ void triangle2(FrameBuffer &frameBuffer, Vec2i a, Vec2i b, Vec2i c, S_RGB color)
             continue;
         };
 
-        auto &rgb = buffer[color_index];
-        rgb = S_RGB { 255, 10, 0};
+        S_RGB *rgb;
+        rgb = &buffer[color_index];
+        *rgb = S_RGB { 255, 0, 0};
 
         color_index = y * frameBuffer.width + p1.x;
         
@@ -169,10 +170,8 @@ void triangle2(FrameBuffer &frameBuffer, Vec2i a, Vec2i b, Vec2i c, S_RGB color)
             continue;
         };
 
-        rgb = buffer[color_index];
-        rgb = S_RGB { 10, 255, 0};
-
-        std::cout << p0.x << " - " << p1.x << std::endl;
+        rgb = &buffer[color_index];
+        *rgb = S_RGB { 10, 255, 0};
     }
 }
 
@@ -266,9 +265,9 @@ void renderTriangleTestScene()
     Vec2i t0[3] = {Vec2i { .x = 10, .y=70 },   Vec2i { .x = 50, .y=160 },  Vec2i { .x = 70, .y=80 }}; 
     Vec2i t1[3] = {Vec2i { .x = 180, .y=50 },  Vec2i { .x = 150, .y=1 },   Vec2i { .x = 70, .y=180 }}; 
     Vec2i t2[3] = {Vec2i { .x = 180, .y=150 }, Vec2i { .x = 120, .y=160 }, Vec2i { .x = 130, .y=180 }}; 
-    triangle(frameBuffer, t0[0], t0[1], t0[2], RED); 
-    triangle(frameBuffer, t1[0], t1[1], t1[2], WHITE); 
-    triangle(frameBuffer, t2[0], t2[1], t2[2], GREEN);
+    // triangle(frameBuffer, t0[0], t0[1], t0[2], RED); 
+    // triangle(frameBuffer, t1[0], t1[1], t1[2], WHITE); 
+    // triangle(frameBuffer, t2[0], t2[1], t2[2], GREEN);
 
     // @todo João, terminar de implementar aqui, bem bugado
     triangle2(frameBuffer, t0[0], t0[1], t0[2], RED); 
