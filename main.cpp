@@ -183,7 +183,51 @@ void triangle2(FrameBuffer &frameBuffer, Vec2i a, Vec2i b, Vec2i c, S_RGB color)
         buffer[color_index] = S_RGB { 10, 255, 0};
     }
 
-    // @todo João, falta desenhar a parte de cima do triângulo
+    for (int y = b.y; y <= c.y; y++)
+    {
+        int segmentHeight = c.y - b.y + 1;
+        float alpha = (float) (y - a.y) / totalHeight;
+        float beta  = (float) (y - b.y) / segmentHeight;
+        
+        Vec2i p0 = {
+            .x = a.x + ((int) ((c.x - a.x) * alpha)),
+            .y = a.y + ((int) ((c.y - a.y) * alpha)),
+        };
+
+        Vec2i p1 = {
+            .x = b.x + ((int) ((c.x - b.x) * beta)),
+            .y = b.y + ((int) ((c.y - b.y) * beta)),
+        };
+
+
+        if (p0.x > p1.x) std::swap(p0, p1);
+
+        for (int j = p0.x; j <= p1.x; j++) {
+            uint32_t color_index = y * frameBuffer.width + j;
+
+            if (color_index > buffer.size()) {
+                continue;
+            };
+
+            buffer[color_index] = S_RGB { 255, 255, 255};
+        }
+
+        uint32_t color_index = y * frameBuffer.width + p0.x;
+        
+        if (color_index > buffer.size()) {
+            continue;
+        };
+
+        buffer[color_index] = S_RGB { 255, 0, 0};
+
+        color_index = y * frameBuffer.width + p1.x;
+        
+        if (color_index > buffer.size()) {
+            continue;
+        };
+
+        buffer[color_index] = S_RGB { 10, 255, 0};
+    }
 }
 
 void fill(FrameBuffer &frameBuffer, S_RGB color)
