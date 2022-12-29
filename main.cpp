@@ -163,24 +163,8 @@ void triangle2(FrameBuffer &frameBuffer, Vec2i a, Vec2i b, Vec2i c, S_RGB color)
                 continue;
             };
 
-            buffer[color_index] = S_RGB { 255, 255, 255};
+            buffer[color_index] = color;
         }
-
-        uint32_t color_index = y * frameBuffer.width + p0.x;
-        
-        if (color_index > buffer.size()) {
-            continue;
-        };
-
-        buffer[color_index] = S_RGB { 255, 0, 0};
-
-        color_index = y * frameBuffer.width + p1.x;
-        
-        if (color_index > buffer.size()) {
-            continue;
-        };
-
-        buffer[color_index] = S_RGB { 10, 255, 0};
     }
 
     for (int y = b.y; y <= c.y; y++)
@@ -209,24 +193,8 @@ void triangle2(FrameBuffer &frameBuffer, Vec2i a, Vec2i b, Vec2i c, S_RGB color)
                 continue;
             };
 
-            buffer[color_index] = S_RGB { 255, 255, 255};
+            buffer[color_index] = color;
         }
-
-        uint32_t color_index = y * frameBuffer.width + p0.x;
-        
-        if (color_index > buffer.size()) {
-            continue;
-        };
-
-        buffer[color_index] = S_RGB { 255, 0, 0};
-
-        color_index = y * frameBuffer.width + p1.x;
-        
-        if (color_index > buffer.size()) {
-            continue;
-        };
-
-        buffer[color_index] = S_RGB { 10, 255, 0};
     }
 }
 
@@ -320,9 +288,9 @@ void renderTriangleTestScene()
     Vec2i t0[3] = {Vec2i { .x = 10, .y=70 },   Vec2i { .x = 50, .y=160 },  Vec2i { .x = 70, .y=80 }}; 
     Vec2i t1[3] = {Vec2i { .x = 180, .y=50 },  Vec2i { .x = 150, .y=1 },   Vec2i { .x = 70, .y=180 }}; 
     Vec2i t2[3] = {Vec2i { .x = 180, .y=150 }, Vec2i { .x = 120, .y=160 }, Vec2i { .x = 130, .y=180 }}; 
-    triangle(frameBuffer, t0[0], t0[1], t0[2], RED); 
-    triangle(frameBuffer, t1[0], t1[1], t1[2], WHITE); 
-    triangle(frameBuffer, t2[0], t2[1], t2[2], GREEN);
+    // triangle(frameBuffer, t0[0], t0[1], t0[2], RED); 
+    // triangle(frameBuffer, t1[0], t1[1], t1[2], WHITE); 
+    // triangle(frameBuffer, t2[0], t2[1], t2[2], GREEN);
 
     triangle2(frameBuffer, t0[0], t0[1], t0[2], RED); 
     triangle2(frameBuffer, t1[0], t1[1], t1[2], WHITE); 
