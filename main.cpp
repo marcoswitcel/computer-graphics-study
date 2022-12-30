@@ -206,6 +206,50 @@ void fill(FrameBuffer &frameBuffer, S_RGB color)
     }
 }
 
+static inline int lerp(int v0, int v1, float percent)
+{
+    // @speedup: reescrever de uma forma mais eficiente
+    if (v0 > v1) {
+        int diff = v0 - v1;
+        return v0 - (diff * percent);
+    } else {
+
+        int diff = v1 - v0;
+        return v0 + (diff * percent);
+    }
+}
+
+void fillLinearGradient(FrameBuffer &frameBuffer, const S_RGB &color0, const S_RGB &color1)
+{
+    const auto width = frameBuffer.width;
+    const auto height = frameBuffer.height;
+    auto &buffer = frameBuffer.buffer;
+    const auto size = frameBuffer.buffer.size();
+
+    assert(width * height <= size);
+
+    for (int y = 0; y < height; y++)
+    {
+        S_RGB currentColor;
+        for (int x = 0; x < width; x++)
+        {
+            float percent = ((float) x) / ((float) width);
+            currentColor.r = lerp(color0.r, color1.r, percent);
+            currentColor.g = lerp(color0.g, color1.g, percent);
+            currentColor.b = lerp(color0.b, color1.b, percent);
+            uint32_t color_index = y * frameBuffer.width + x;
+
+            if (color_index > size) {
+                continue;
+            };
+
+
+            buffer[color_index] = currentColor;
+        }
+
+    }
+}
+
 void flipImageInXAxis(FrameBuffer &frameBuffer)
 {
     auto &buffer = frameBuffer.buffer;
@@ -284,7 +328,10 @@ void renderTriangleTestScene()
 
 /*     triangle(frameBuffer, a, b, c, S_RGB { 255, 0, 0 }); */
 
-    fill(frameBuffer, BLACK);
+    // fill(frameBuffer, BLACK);
+    fillLinearGradient(frameBuffer, S_RGB { 230, 100, 101 }, S_RGB { 145, 152, 229 });
+    // fill(frameBuffer, S_RGB { 145, 152, 229 });
+
     Vec2i t0[3] = {Vec2i { .x = 10, .y=70 },   Vec2i { .x = 50, .y=160 },  Vec2i { .x = 70, .y=80 }}; 
     Vec2i t1[3] = {Vec2i { .x = 180, .y=50 },  Vec2i { .x = 150, .y=1 },   Vec2i { .x = 70, .y=180 }}; 
     Vec2i t2[3] = {Vec2i { .x = 180, .y=150 }, Vec2i { .x = 120, .y=160 }, Vec2i { .x = 130, .y=180 }}; 
