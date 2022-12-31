@@ -138,10 +138,10 @@ void triangle2(FrameBuffer &frameBuffer, Vec2i a, Vec2i b, Vec2i c, S_RGB color)
     assert(a.y <= c.y && "deveria ser menor ou igual sempre");
 
     int totalHeight = c.y -  a.y;
-    for (int y = a.y; y < b.y; y++)
+    for (int y = a.y; y <= b.y; y++)
     {
         int segmentHeight = b.y - a.y + 1;
-        float alpha = (float) (y - a.y) / totalHeight;
+        float alpha = (float) (y - a.y) / std::max(totalHeight, 1);
         float beta  = (float) (y - a.y) / segmentHeight;
 
         Vec2i p0 = {
@@ -170,7 +170,7 @@ void triangle2(FrameBuffer &frameBuffer, Vec2i a, Vec2i b, Vec2i c, S_RGB color)
     for (int y = b.y; y <= c.y; y++)
     {
         int segmentHeight = c.y - b.y + 1;
-        float alpha = (float) (y - a.y) / totalHeight;
+        float alpha = (float) (y - a.y) / std::max(totalHeight, 1);
         float beta  = (float) (y - b.y) / segmentHeight;
         
         Vec2i p0 = {
@@ -214,8 +214,11 @@ void drawModel(ObjModel* model, FrameBuffer &frameBuffer)
             verts[v].x = (vert.x*150.0) + width/2.0;
             verts[v].y = (vert.y*150.0) + height/4.0;
         };
+/*         if (i == 80) {
+            std::cout << verts[0].x  << ":" << verts[0].y  << ":" << verts[1].x  << ":" << verts[1].y  << ":" << verts[2].x  << ":" << verts[2].y << std::endl;
+            break;
+        } */
         triangle2(frameBuffer, verts[0], verts[1], verts[2], S_RGB { 255, 255, 255 });
-        if (i > 79) break;
     }
 }
 
@@ -391,11 +394,42 @@ void renderTriangleTestScene()
     saveFrameBufferToPPMFile(frameBuffer, "image.ppm");
 }
 
+void renderProblematicTriangle()
+{
+    constexpr unsigned int width = 1024;
+    constexpr unsigned int height = 768;
+    const int fov = M_PI / 2.;
+
+    FrameBuffer frameBuffer = {
+        width : width,
+        height : height,
+        buffer : vector<S_RGB>(width * height),
+    };
+
+    const auto BLACK = S_RGB { 0, 0, 0 };
+
+    fill(frameBuffer, BLACK);
+
+    Vec2i a = { .x = 719, .y = 566 };
+    Vec2i b = { .x = 717, .y = 566 };
+    Vec2i c = { .x = 720, .y = 566 };
+
+    // @note: graças a esse triângulo percebe que esqueci de por <= em lugar aonde era necessário
+    // também percebi que não tratei a divisão por zero :/
+    triangle2(frameBuffer, a, b, c, S_RGB { 255, 255, 255 });
+
+    flipImageInXAxis(frameBuffer);
+    
+    saveFrameBufferToPPMFile(frameBuffer, "image.ppm");
+}
+
 int main(int argc, char *argv[])
 {
     //renderTeapotWireframeScene();
     //renderTriangleTestScene();
-    renderTeapotFilledScene();
+    // renderTeapotFilledScene();
+    
+    renderProblematicTriangle();
 
     return 0;
 }
