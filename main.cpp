@@ -198,6 +198,28 @@ void triangle2(FrameBuffer &frameBuffer, Vec2i a, Vec2i b, Vec2i c, S_RGB color)
     }
 }
 
+void drawModel(ObjModel* model, FrameBuffer &frameBuffer)
+{
+    const auto width = frameBuffer.width;
+    const auto height = frameBuffer.height;
+
+    for (int i = 0; i < model->facesLength(); i++)
+    {
+        auto face = model->getFace(i);
+        Vec2i verts[3];
+        Vec3f vert;
+        for (int v = 0; v < 3; v++)
+        {
+            vert = model->getVert(face[v]);
+            verts[v].x = (vert.x*150.0) + width/2.0;
+            verts[v].y = (vert.y*150.0) + height/4.0;
+        };
+        triangle2(frameBuffer, verts[0], verts[1], verts[2], S_RGB { 255, 255, 255 });
+        if (i > 79) break;
+    }
+}
+
+
 void fill(FrameBuffer &frameBuffer, S_RGB color)
 {
     for (S_RGB &rgb : frameBuffer.buffer)
@@ -268,7 +290,7 @@ void flipImageInXAxis(FrameBuffer &frameBuffer)
     }
 }
 
-void renderTeapotScene()
+void renderTeapotWireframeScene()
 {
     constexpr unsigned int width = 1024;
     constexpr unsigned int height = 768;
@@ -292,6 +314,33 @@ void renderTeapotScene()
     drawRect(frameBuffer, 20, 20, 150, 730, S_RGB { 0, 255, 255 });
 
     drawWireframe(model, &frameBuffer);
+
+    flipImageInXAxis(frameBuffer);
+    
+    saveFrameBufferToPPMFile(frameBuffer, "image.ppm");
+}
+
+void renderTeapotFilledScene()
+{
+    constexpr unsigned int width = 1024;
+    constexpr unsigned int height = 768;
+    const int fov = M_PI / 2.;
+
+    FrameBuffer frameBuffer = {
+        width : width,
+        height : height,
+        buffer : vector<S_RGB>(width * height),
+    };
+
+    const auto RED = S_RGB { 255, 0, 0 };
+    const auto WHITE = S_RGB { 255, 255, 255 };
+    const auto BLACK = S_RGB { 0, 0, 0 };
+
+    fillLinearGradient(frameBuffer, S_RGB { 230, 100, 101 }, S_RGB { 145, 152, 229 });
+
+    ObjModel* model = ObjModel::readObjModel("teapot.obj");
+
+    drawModel(model, frameBuffer);
 
     flipImageInXAxis(frameBuffer);
     
@@ -344,8 +393,9 @@ void renderTriangleTestScene()
 
 int main(int argc, char *argv[])
 {
-    //renderTeapotScene();
-    renderTriangleTestScene();
+    //renderTeapotWireframeScene();
+    //renderTriangleTestScene();
+    renderTeapotFilledScene();
 
     return 0;
 }
