@@ -208,15 +208,8 @@ void fill(FrameBuffer &frameBuffer, S_RGB color)
 
 static inline int lerp(int v0, int v1, float percent)
 {
-    // @speedup: reescrever de uma forma mais eficiente
-    if (v0 > v1) {
-        int diff = v0 - v1;
-        return v0 - (diff * percent);
-    } else {
-
-        int diff = v1 - v0;
-        return v0 + (diff * percent);
-    }
+    int diff = v1 - v0;
+    return v0 + (diff * percent);
 }
 
 void fillLinearGradient(FrameBuffer &frameBuffer, const S_RGB &color0, const S_RGB &color1)
@@ -330,6 +323,7 @@ void renderTriangleTestScene()
 
     // fill(frameBuffer, BLACK);
     fillLinearGradient(frameBuffer, S_RGB { 230, 100, 101 }, S_RGB { 145, 152, 229 });
+    // fillLinearGradient(frameBuffer, S_RGB { 150, 0, 0 }, S_RGB { 0, 150, 0 });
     // fill(frameBuffer, S_RGB { 145, 152, 229 });
 
     Vec2i t0[3] = {Vec2i { .x = 10, .y=70 },   Vec2i { .x = 50, .y=160 },  Vec2i { .x = 70, .y=80 }}; 
