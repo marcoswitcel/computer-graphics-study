@@ -211,13 +211,9 @@ void drawModel(ObjModel* model, FrameBuffer &frameBuffer)
         for (int v = 0; v < 3; v++)
         {
             vert = model->getVert(face[v]);
-            verts[v].x = (vert.x*150.0) + width/2.0;
-            verts[v].y = (vert.y*150.0) + height/4.0;
+            verts[v].x = (vert.x*140.0) + width/2.0;
+            verts[v].y = (vert.y*140.0) + height/4.0;
         };
-/*         if (i == 80) {
-            std::cout << verts[0].x  << ":" << verts[0].y  << ":" << verts[1].x  << ":" << verts[1].y  << ":" << verts[2].x  << ":" << verts[2].y << std::endl;
-            break;
-        } */
         triangle2(frameBuffer, verts[0], verts[1], verts[2], S_RGB { 255, 255, 255 });
     }
 }
@@ -427,9 +423,9 @@ int main(int argc, char *argv[])
 {
     //renderTeapotWireframeScene();
     //renderTriangleTestScene();
-    // renderTeapotFilledScene();
+    //renderProblematicTriangle();
     
-    renderProblematicTriangle();
+    renderTeapotFilledScene();
 
     return 0;
 }
