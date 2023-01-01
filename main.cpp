@@ -214,7 +214,11 @@ void drawModel(ObjModel* model, FrameBuffer &frameBuffer)
             verts[v].x = (vert.x*140.0) + width/2.0;
             verts[v].y = (vert.y*140.0) + height/4.0;
         };
-        triangle2(frameBuffer, verts[0], verts[1], verts[2], S_RGB { 255, 255, 255 });
+        triangle2(frameBuffer, verts[0], verts[1], verts[2], S_RGB {
+            .r = (uint8_t) (std::rand() % 255),
+            .g = (uint8_t) (std::rand() % 255),
+            .b = (uint8_t) (std::rand() % 255),
+        });
     }
 }
 
