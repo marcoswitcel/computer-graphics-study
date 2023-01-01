@@ -4,6 +4,7 @@
 #include <vector>
 #include <math.h>
 #include <assert.h>
+#include <chrono>
 
 #include "color_and_image.h"
 #include "obj_model.cpp"
@@ -214,11 +215,12 @@ void drawModel(ObjModel* model, FrameBuffer &frameBuffer)
             verts[v].x = (vert.x*140.0) + width/2.0;
             verts[v].y = (vert.y*140.0) + height/4.0;
         };
-        triangle2(frameBuffer, verts[0], verts[1], verts[2], S_RGB {
+        triangle2(frameBuffer, verts[0], verts[1], verts[2], S_RGB { 255, 255, 255 });
+        /* triangle2(frameBuffer, verts[0], verts[1], verts[2], S_RGB {
             .r = (uint8_t) (std::rand() % 255),
             .g = (uint8_t) (std::rand() % 255),
             .b = (uint8_t) (std::rand() % 255),
-        });
+        }); */
     }
 }
 
@@ -339,13 +341,19 @@ void renderTeapotFilledScene()
     const auto WHITE = S_RGB { 255, 255, 255 };
     const auto BLACK = S_RGB { 0, 0, 0 };
 
+
     fillLinearGradient(frameBuffer, S_RGB { 230, 100, 101 }, S_RGB { 145, 152, 229 });
 
     ObjModel* model = ObjModel::readObjModel("teapot.obj");
 
+    auto start = std::chrono::high_resolution_clock::now();
     drawModel(model, frameBuffer);
+    auto end = std::chrono::high_resolution_clock::now();
+    auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+    std::cout << "tempo renderizando: " << elapsedTime.count() << " ms "<< std::endl;
 
     flipImageInXAxis(frameBuffer);
+
     
     saveFrameBufferToPPMFile(frameBuffer, "image.ppm");
 }
