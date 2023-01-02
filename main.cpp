@@ -199,6 +199,30 @@ void triangle2(FrameBuffer &frameBuffer, Vec2i a, Vec2i b, Vec2i c, S_RGB color)
     }
 }
 
+void drawModelWithLightSource(ObjModel* model, FrameBuffer &frameBuffer)
+{
+    const auto width = frameBuffer.width;
+    const auto height = frameBuffer.height;
+
+    Vec3f lightDir = { 0, 0, -1 };
+    for (int i = 0; i < model->facesLength(); i++)
+    {
+        auto face = model->getFace(i);
+        Vec2i screenCoords[3];
+        Vec3f worldCoords[3];
+        for (int v = 0; v < 3; v++)
+        {
+            Vec3f vert = model->getVert(face[v]);
+            screenCoords[v].x = (vert.x*140.0) + width/2.0;
+            screenCoords[v].y = (vert.y*140.0) + height/4.0;
+            worldCoords[v] = vert;
+        };
+        Vec3f n = (worldCoords[2] - worldCoords[0]) ^ (worldCoords[1] - worldCoords[0]);
+        std::cout << n.x << " " << n.y << " " << n.z << " " << std::endl;
+        triangle2(frameBuffer, screenCoords[0], screenCoords[1], screenCoords[2], S_RGB { 255, 255, 255 });
+    }
+}
+
 void drawModel(ObjModel* model, FrameBuffer &frameBuffer)
 {
     const auto width = frameBuffer.width;
@@ -325,6 +349,39 @@ void renderTeapotWireframeScene()
     saveFrameBufferToPPMFile(frameBuffer, "image.ppm");
 }
 
+void renderTeapotWithLightSourceScene()
+{
+    constexpr unsigned int width = 1024;
+    constexpr unsigned int height = 768;
+    const int fov = M_PI / 2.;
+
+    FrameBuffer frameBuffer = {
+        width : width,
+        height : height,
+        buffer : vector<S_RGB>(width * height),
+    };
+
+    const auto RED = S_RGB { 255, 0, 0 };
+    const auto WHITE = S_RGB { 255, 255, 255 };
+    const auto BLACK = S_RGB { 0, 0, 0 };
+
+
+    fillLinearGradient(frameBuffer, S_RGB { 230, 100, 101 }, S_RGB { 145, 152, 229 });
+
+    ObjModel* model = ObjModel::readObjModel("teapot.obj");
+
+    auto start = std::chrono::high_resolution_clock::now();
+    drawModelWithLightSource(model, frameBuffer);
+    auto end = std::chrono::high_resolution_clock::now();
+    auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+    std::cout << "tempo renderizando: " << elapsedTime.count() << " ms "<< std::endl;
+
+    flipImageInXAxis(frameBuffer);
+
+    
+    saveFrameBufferToPPMFile(frameBuffer, "image.ppm");
+}
+
 void renderTeapotFilledScene()
 {
     constexpr unsigned int width = 1024;
@@ -436,8 +493,9 @@ int main(int argc, char *argv[])
     //renderTeapotWireframeScene();
     //renderTriangleTestScene();
     //renderProblematicTriangle();
-    
-    renderTeapotFilledScene();
+    // renderTeapotFilledScene();
+
+    renderTeapotWithLightSourceScene();
 
     return 0;
 }
