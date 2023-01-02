@@ -218,8 +218,16 @@ void drawModelWithLightSource(ObjModel* model, FrameBuffer &frameBuffer)
             worldCoords[v] = vert;
         };
         Vec3f n = (worldCoords[2] - worldCoords[0]) ^ (worldCoords[1] - worldCoords[0]);
-        std::cout << n.x << " " << n.y << " " << n.z << " " << std::endl;
-        triangle2(frameBuffer, screenCoords[0], screenCoords[1], screenCoords[2], S_RGB { 255, 255, 255 });
+        n.normalize();
+        float intensity = n * lightDir;
+        if (intensity > 0)
+        {
+            triangle2(frameBuffer, screenCoords[0], screenCoords[1], screenCoords[2], S_RGB {
+                (uint8_t) (intensity * 255),
+                (uint8_t) (intensity * 255),
+                (uint8_t) (intensity * 255),
+            });
+        }
     }
 }
 
