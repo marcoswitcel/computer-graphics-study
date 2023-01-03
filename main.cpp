@@ -204,6 +204,10 @@ void drawModelWithLightSource(ObjModel* model, FrameBuffer &frameBuffer)
     const auto width = frameBuffer.width;
     const auto height = frameBuffer.height;
 
+    ZBuffer zBuffer(width, height);
+
+    assert(frameBuffer.buffer.size() == zBuffer.buffer.size() && "Devem ter o mesmo tamanho");
+
     Vec3f lightDir = { 0, 0, -1 };
     for (int i = 0; i < model->facesLength(); i++)
     {

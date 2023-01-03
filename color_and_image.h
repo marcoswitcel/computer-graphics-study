@@ -18,4 +18,24 @@ struct FrameBuffer
     std::vector<S_RGB> buffer;
 };
 
+class ZBuffer
+{
+public:
+    unsigned int width;
+    unsigned int height;
+    std::vector<float> buffer;
+    ZBuffer(unsigned width, unsigned height): width(width), height(height), buffer(width * height)
+    {
+        clearForUse();
+    }
+
+    void clearForUse()
+    {
+        for (int i = width * height; i--;)
+        {
+            buffer[i] = -std::numeric_limits<float>::max();
+        }
+    }
+};
+
 #endif // COLOR_AND_IMAGE_H
