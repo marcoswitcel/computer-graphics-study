@@ -5,4 +5,6 @@ Realizando esse tutorial: [https://github.com/ssloy/tinyrenderer/wiki/Lesson-0:-
 
 ## Onde parei
 
-* [https://github.com/ssloy/tinyrenderer/wiki/Lesson-3:-Hidden-faces-removal-(z-buffer)#even-simpler-let-us-lose-a-dimension-y-buffer](https://github.com/ssloy/tinyrenderer/wiki/Lesson-3:-Hidden-faces-removal-(z-buffer)#even-simpler-let-us-lose-a-dimension-y-buffer)
+* A integração do ZBUffer no meu código não saiu funcional ainda: [https://github.com/ssloy/tinyrenderer/wiki/Lesson-3:-Hidden-faces-removal-(z-buffer)#even-simpler-let-us-lose-a-dimension-y-buffer](https://github.com/ssloy/tinyrenderer/wiki/Lesson-3:-Hidden-faces-removal-(z-buffer)#even-simpler-let-us-lose-a-dimension-y-buffer)
+
+

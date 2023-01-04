@@ -199,6 +199,146 @@ void triangle2(FrameBuffer &frameBuffer, Vec2i a, Vec2i b, Vec2i c, S_RGB color)
     }
 }
 
+Vec3f cross(const Vec3f &a, const Vec3f &b) {
+    return Vec3f {
+        .x = a.y * b.z - a.z * b.y,
+        .y = a.z * b.x - a.x * b.z, 
+        .z = a.x * b.y - a.y * b.x,
+    };
+}
+
+inline Vec3f barycentric(const Vec3f &a, const Vec3f &b, const Vec3f &c, const Vec3f &p)
+{
+    Vec3f newA = {0}, newB = {0}, newC = {0};
+
+    newA.x = c.x - a.x;
+    newA.y = b.x - a.x;
+    newA.z = a.x - p.x;
+
+    newB.x = c.y - a.y;
+    newB.y = b.y - a.y;
+    newB.z = a.y - p.y;
+
+    newC.x = c.z - a.z;
+    newC.y = b.z - a.z;
+    newC.z = a.z - p.z;
+
+    Vec3f u = cross(a, b);
+
+    if (std::abs(u.z) > 1e-2) {
+        return Vec3f {
+            .x = 1.f-(u.x + u.y)/u.z,
+            .y = u.y / u.z,
+            .z = u.x / u.z,
+        };
+    }
+
+    return Vec3f { -1, 1, 1 };
+}
+
+void triangle(FrameBuffer &frameBuffer, ZBuffer &zBuffer, Vec3f a, Vec3f b, Vec3f c, S_RGB color)
+{
+    auto &buffer = frameBuffer.buffer;
+
+    if (a.y > b.y) std::swap(a, b);
+    if (a.y > c.y) std::swap(a, c);
+    if (b.y > c.y) std::swap(b, c);
+
+    assert(a.y <= c.y && "deveria ser menor ou igual sempre");
+
+    int totalHeight = c.y -  a.y;
+    for (int y = a.y; y <= b.y; y++)
+    {
+        int segmentHeight = b.y - a.y + 1;
+        float alpha = (float) (y - a.y) / std::max(totalHeight, 1);
+        float beta  = (float) (y - a.y) / segmentHeight;
+
+        Vec2i p0 = {
+            .x = (int) (a.x + (c.x - a.x) * alpha),
+            .y = (int) (a.y + (c.y - a.y) * alpha),
+        };
+
+        Vec2i p1 = {
+            .x = (int) (a.x + (b.x - a.x) * beta),
+            .y = (int) (a.y + (b.y - a.y) * beta),
+        };
+
+        if (p0.x > p1.x) std::swap(p0, p1);
+
+        for (int j = p0.x; j <= p1.x; j++) {
+            uint32_t colorIndex = y * frameBuffer.width + j;
+            Vec3f pixelPosition = { .x = (float) p0.x, .y = (float) p0.y, .z = 0 };
+            Vec3f bsScreen = barycentric(a, b, c, pixelPosition);
+
+            if (bsScreen.x < 0 || bsScreen.y < 0 || bsScreen.z < 0 ) {
+                continue;
+            };
+
+            if (colorIndex > buffer.size()) {
+                continue;
+            };
+
+            pixelPosition.z = 0;
+
+            // calcula posição no exio z do pixel atual
+            pixelPosition.z += a.z * bsScreen.x;
+            pixelPosition.z += b.z * bsScreen.y;
+            pixelPosition.z += c.z * bsScreen.z;
+
+            if (zBuffer.buffer[colorIndex] < pixelPosition.z) {
+                zBuffer.buffer[colorIndex] = pixelPosition.z;
+                buffer[colorIndex] = color;
+            }
+        }
+    }
+
+    for (int y = b.y; y <= c.y; y++)
+    {
+        int segmentHeight = c.y - b.y + 1;
+        float alpha = (float) (y - a.y) / std::max(totalHeight, 1);
+        float beta  = (float) (y - b.y) / segmentHeight;
+        
+        Vec2i p0 = {
+            .x = (int) (a.x + ((c.x - a.x) * alpha)),
+            .y = (int) (a.y + ((c.y - a.y) * alpha)),
+        };
+
+        Vec2i p1 = {
+            .x = (int) (b.x + ((c.x - b.x) * beta)),
+            .y = (int) (b.y + ((c.y - b.y) * beta)),
+        };
+
+
+        if (p0.x > p1.x) std::swap(p0, p1);
+
+        for (int j = p0.x; j <= p1.x; j++) {
+            uint32_t colorIndex = y * frameBuffer.width + j;
+            Vec3f pixelPosition = { .x = (float) p0.x, .y = (float) p0.y, .z = 0 };
+            Vec3f bsScreen = barycentric(a, b, c, pixelPosition);
+
+            if (bsScreen.x < 0 || bsScreen.y < 0 || bsScreen.z < 0 ) {
+                continue;
+            };
+
+            if (colorIndex > buffer.size()) {
+                continue;
+            };
+
+            pixelPosition.z = 0;
+
+            // calcula posição no exio z do pixel atual
+            pixelPosition.z += a.z * bsScreen.x;
+            pixelPosition.z += b.z * bsScreen.y;
+            pixelPosition.z += c.z * bsScreen.z;
+
+            if (zBuffer.buffer[colorIndex] < pixelPosition.z) {
+                zBuffer.buffer[colorIndex] = pixelPosition.z;
+                buffer[colorIndex] = color;
+            }
+        }
+    }
+}
+
 void drawModelWithLightSource(ObjModel* model, FrameBuffer &frameBuffer)
 {
     const auto width = frameBuffer.width;
@@ -242,13 +382,14 @@ void drawModelWithLightSource(ObjModel* model, FrameBuffer &frameBuffer, ZBuffer
     for (int i = 0; i < model->facesLength(); i++)
     {
         auto face = model->getFace(i);
-        Vec2i screenCoords[3];
+        Vec3f screenCoords[3];
         Vec3f worldCoords[3];
         for (int v = 0; v < 3; v++)
         {
             Vec3f vert = model->getVert(face[v]);
             screenCoords[v].x = (vert.x*140.0) + width/2.0;
             screenCoords[v].y = (vert.y*140.0) + height/4.0;
+            screenCoords[v].z = vert.z;
             worldCoords[v] = vert;
         };
         Vec3f n = (worldCoords[2] - worldCoords[0]) ^ (worldCoords[1] - worldCoords[0]);
@@ -256,7 +397,7 @@ void drawModelWithLightSource(ObjModel* model, FrameBuffer &frameBuffer, ZBuffer
         float intensity = n * lightDir;
         if (intensity > 0)
         {
-            triangle2(frameBuffer, screenCoords[0], screenCoords[1], screenCoords[2], S_RGB {
+            triangle(frameBuffer, zBuffer, screenCoords[0], screenCoords[1], screenCoords[2], S_RGB {
                 (uint8_t) (intensity * 255),
                 (uint8_t) (intensity * 255),
                 (uint8_t) (intensity * 255),
