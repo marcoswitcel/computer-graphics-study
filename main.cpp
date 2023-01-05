@@ -389,7 +389,7 @@ void drawModelWithLightSource(ObjModel* model, FrameBuffer &frameBuffer, ZBuffer
             Vec3f vert = model->getVert(face[v]);
             screenCoords[v].x = (vert.x*140.0) + width/2.0;
             screenCoords[v].y = (vert.y*140.0) + height/4.0;
-            screenCoords[v].z = vert.z;
+            screenCoords[v].z = 0; // @todo João, removendo o eixo z original funciona parcialmente
             worldCoords[v] = vert;
         };
         Vec3f n = (worldCoords[2] - worldCoords[0]) ^ (worldCoords[1] - worldCoords[0]);
