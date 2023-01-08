@@ -223,8 +223,8 @@ void triangle2(FrameBuffer &frameBuffer, Vec2i a, Vec2i b, Vec2i c, S_RGB color)
 
 inline Vec3f barycentric(const Vec2i &a, const Vec2i &b, const Vec2i &c, const Vec2i &p)
 {
-    Vec3f m0 = { c.x - a.x, b.x -a.x, a.x - p.x };
-    Vec3f m1 = { c.y - a.y, b.y - a.y, a.y - p.y };
+    Vec3f m0 = { (float) (c.x - a.x), (float) (b.x - a.x), (float) (a.x - p.x) };
+    Vec3f m1 = { (float) (c.y - a.y), (float) (b.y - a.y), (float) (a.y - p.y) };
     Vec3f u = m0 ^ m1;
 
     if (std::abs(u.z) < 1) return { -1, 1, 1 };
@@ -512,22 +512,31 @@ void drawModel2(ObjModel* model, FrameBuffer &frameBuffer)
     const auto width = frameBuffer.width;
     const auto height = frameBuffer.height;
 
+    Vec3f lightDir = { 0, 0, -1 };
     for (int i = 0; i < model->facesLength(); i++)
     {
         auto face = model->getFace(i);
         Vec2i screenCoords[3];
+        Vec3f worldCoords[3];
         for (int v = 0; v < 3; v++)
         {
-            Vec3f worldCoord = model->getVert(face[v]);
-            screenCoords[v].x = (worldCoord.x*400.0) + width/2.0;
-            screenCoords[v].y = (worldCoord.y*400.0) + height/2.0;
+            Vec3f vert = model->getVert(face[v]);
+            screenCoords[v].x = (vert.x*400.0) + width/2.0;
+            screenCoords[v].y = (vert.y*400.0) + height/2.0;
+            worldCoords[v] = vert;
         };
-        //triangle3(frameBuffer, screenCoords[0], screenCoords[1], screenCoords[2], S_RGB { 255, 255, 255 });
-        triangle3(frameBuffer, screenCoords[0], screenCoords[1], screenCoords[2], S_RGB {
-            .r = (uint8_t) (std::rand() % 255),
-            .g = (uint8_t) (std::rand() % 255),
-            .b = (uint8_t) (std::rand() % 255),
-        }); 
+        
+        Vec3f n = (worldCoords[2] - worldCoords[0]) ^ (worldCoords[1] - worldCoords[0]);
+        n.normalize();
+        float intensity = n * lightDir;
+        if (intensity > 0) {
+            triangle3(frameBuffer, screenCoords[0], screenCoords[1], screenCoords[2], S_RGB { (uint8_t) (intensity * 255), (uint8_t) (intensity * 255), (uint8_t) (intensity * 255) });
+            /* triangle3(frameBuffer, screenCoords[0], screenCoords[1], screenCoords[2], S_RGB {
+                .r = (uint8_t) (std::rand() % 255),
+                .g = (uint8_t) (std::rand() % 255),
+                .b = (uint8_t) (std::rand() % 255),
+            });  */
+        }
     }
 }
 
