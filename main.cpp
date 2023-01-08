@@ -221,15 +221,26 @@ void triangle2(FrameBuffer &frameBuffer, Vec2i a, Vec2i b, Vec2i c, S_RGB color)
     }
 }
 
+inline Vec3f barycentric(const Vec2i &a, const Vec2i &b, const Vec2i &c, const Vec2i &p)
+{
+    Vec3f m0 = { c.x - a.x, b.x -a.x, a.x - p.x };
+    Vec3f m1 = { c.y - a.y, b.y - a.y, a.y - p.y };
+    Vec3f u = m0 ^ m1;
+
+    if (std::abs(u.z) < 1) return { -1, 1, 1 };
+    return { 1.f-(u.x+u.y)/u.z, u.y/u.z, u.x/u.z };
+}
+
 void triangle3(FrameBuffer &frameBuffer, Vec2i a, Vec2i b, Vec2i c, S_RGB color)
 {
     const auto width = frameBuffer.width;
     const auto height = frameBuffer.height;
+    auto &buffer = frameBuffer.buffer;
 
 
-    Vec2i bboxmin = { width - 1, height -1 };
+    Vec2i bboxmin = { (int) width - 1, (int) height - 1 };
     Vec2i bboxmax = { 0, 0 };
-    Vec2i clamp = { width - 1, height -1 };
+    Vec2i clamp = { (int) width - 1, (int) height - 1 };
 
 
     Vec2i pts[3] = { a, b, c};
@@ -242,7 +253,26 @@ void triangle3(FrameBuffer &frameBuffer, Vec2i a, Vec2i b, Vec2i c, S_RGB color)
         bboxmax.y = std::min(clamp.y, std::max(bboxmax.y, pts[i].y));
     }
 
-    //@todo João, continuar aqui
+    Vec2i p;
+    for (p.x = bboxmin.x; p.x <= bboxmax.x; p.x++)
+    {
+        for (p.y = bboxmin.y; p.y <= bboxmax.y; p.y++)
+        {
+            Vec3f bsScreen = barycentric(a, b, c, p);
+            
+            uint32_t colorIndex = p.y * frameBuffer.width + p.x;
+
+            if (bsScreen.x < 0 || bsScreen.y < 0 || bsScreen.z < 0 ) {
+                continue;
+            };
+
+            if (colorIndex > buffer.size()) {
+                continue;
+            };
+
+            buffer[colorIndex] = color;
+        }
+    }
 }
 
 Vec3f cross(const Vec3f &a, const Vec3f &b) {
@@ -485,15 +515,15 @@ void drawModel2(ObjModel* model, FrameBuffer &frameBuffer)
     for (int i = 0; i < model->facesLength(); i++)
     {
         auto face = model->getFace(i);
-        Vec2i verts[3];
+        Vec2i screenCoords[3];
         Vec3f vert;
         for (int v = 0; v < 3; v++)
         {
             vert = model->getVert(face[v]);
-            verts[v].x = (vert.x*140.0) + width/2.0;
-            verts[v].y = (vert.y*140.0) + height/4.0;
+            screenCoords[v].x = (vert.x*140.0) + width/2.0;
+            screenCoords[v].y = (vert.y*140.0) + height/4.0;
         };
-        triangle3(frameBuffer, verts[0], verts[1], verts[2], S_RGB { 255, 255, 255 });
+        triangle3(frameBuffer, screenCoords[0], screenCoords[1], screenCoords[2], S_RGB { 255, 255, 255 });
         /* triangle2(frameBuffer, verts[0], verts[1], verts[2], S_RGB {
             .r = (uint8_t) (std::rand() % 255),
             .g = (uint8_t) (std::rand() % 255),
