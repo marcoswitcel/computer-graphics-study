@@ -516,19 +516,18 @@ void drawModel2(ObjModel* model, FrameBuffer &frameBuffer)
     {
         auto face = model->getFace(i);
         Vec2i screenCoords[3];
-        Vec3f vert;
         for (int v = 0; v < 3; v++)
         {
-            vert = model->getVert(face[v]);
-            screenCoords[v].x = (vert.x*140.0) + width/2.0;
-            screenCoords[v].y = (vert.y*140.0) + height/4.0;
+            Vec3f worldCoord = model->getVert(face[v]);
+            screenCoords[v].x = (worldCoord.x*400.0) + width/2.0;
+            screenCoords[v].y = (worldCoord.y*400.0) + height/2.0;
         };
-        triangle3(frameBuffer, screenCoords[0], screenCoords[1], screenCoords[2], S_RGB { 255, 255, 255 });
-        /* triangle2(frameBuffer, verts[0], verts[1], verts[2], S_RGB {
+        //triangle3(frameBuffer, screenCoords[0], screenCoords[1], screenCoords[2], S_RGB { 255, 255, 255 });
+        triangle3(frameBuffer, screenCoords[0], screenCoords[1], screenCoords[2], S_RGB {
             .r = (uint8_t) (std::rand() % 255),
             .g = (uint8_t) (std::rand() % 255),
             .b = (uint8_t) (std::rand() % 255),
-        }); */
+        }); 
     }
 }
 
@@ -736,7 +735,7 @@ void renderTeapotWithLightSourceAndZBufferScene()
 void renderHeadFilledScene()
 {
     constexpr unsigned int width = 1024;
-    constexpr unsigned int height = 768;
+    constexpr unsigned int height = 1024;
     const int fov = M_PI / 2.;
 
     FrameBuffer frameBuffer = {
