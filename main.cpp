@@ -221,6 +221,30 @@ void triangle2(FrameBuffer &frameBuffer, Vec2i a, Vec2i b, Vec2i c, S_RGB color)
     }
 }
 
+void triangle3(FrameBuffer &frameBuffer, Vec2i a, Vec2i b, Vec2i c, S_RGB color)
+{
+    const auto width = frameBuffer.width;
+    const auto height = frameBuffer.height;
+
+
+    Vec2i bboxmin = { width - 1, height -1 };
+    Vec2i bboxmax = { 0, 0 };
+    Vec2i clamp = { width - 1, height -1 };
+
+
+    Vec2i pts[3] = { a, b, c};
+    for (int i = 0; i < 3; i++)
+    {
+        bboxmin.x = std::max(0, std::min(bboxmin.x, pts[i].x));
+        bboxmin.y = std::max(0, std::min(bboxmin.y, pts[i].y));
+
+        bboxmax.x = std::min(clamp.x, std::max(bboxmax.x, pts[i].x));
+        bboxmax.y = std::min(clamp.y, std::max(bboxmax.y, pts[i].y));
+    }
+
+    //@todo João, continuar aqui
+}
+
 Vec3f cross(const Vec3f &a, const Vec3f &b) {
     return Vec3f {
         .x = a.y * b.z - a.z * b.y,
@@ -453,6 +477,31 @@ void drawModel(ObjModel* model, FrameBuffer &frameBuffer)
     }
 }
 
+void drawModel2(ObjModel* model, FrameBuffer &frameBuffer)
+{
+    const auto width = frameBuffer.width;
+    const auto height = frameBuffer.height;
+
+    for (int i = 0; i < model->facesLength(); i++)
+    {
+        auto face = model->getFace(i);
+        Vec2i verts[3];
+        Vec3f vert;
+        for (int v = 0; v < 3; v++)
+        {
+            vert = model->getVert(face[v]);
+            verts[v].x = (vert.x*140.0) + width/2.0;
+            verts[v].y = (vert.y*140.0) + height/4.0;
+        };
+        triangle3(frameBuffer, verts[0], verts[1], verts[2], S_RGB { 255, 255, 255 });
+        /* triangle2(frameBuffer, verts[0], verts[1], verts[2], S_RGB {
+            .r = (uint8_t) (std::rand() % 255),
+            .g = (uint8_t) (std::rand() % 255),
+            .b = (uint8_t) (std::rand() % 255),
+        }); */
+    }
+}
+
 
 void fill(FrameBuffer &frameBuffer, S_RGB color)
 {
@@ -653,6 +702,41 @@ void renderTeapotWithLightSourceAndZBufferScene()
     saveFrameBufferToPPMFile(frameBuffer, "image.ppm");
 }
 
+
+void renderHeadFilledScene()
+{
+    constexpr unsigned int width = 1024;
+    constexpr unsigned int height = 768;
+    const int fov = M_PI / 2.;
+
+    FrameBuffer frameBuffer = {
+        width : width,
+        height : height,
+        buffer : vector<S_RGB>(width * height),
+    };
+
+    const auto RED = S_RGB { 255, 0, 0 };
+    const auto WHITE = S_RGB { 255, 255, 255 };
+    const auto BLACK = S_RGB { 0, 0, 0 };
+
+
+    fillLinearGradient(frameBuffer, S_RGB { 230, 100, 101 }, S_RGB { 145, 152, 229 });
+
+    ObjModel* model = ObjModel::readObjModel2("assets/models/african_head.obj");
+
+    auto start = std::chrono::high_resolution_clock::now();
+    drawModel2(model, frameBuffer);
+    auto end = std::chrono::high_resolution_clock::now();
+    auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+    std::cout << "tempo renderizando: " << elapsedTime.count() << " ms "<< std::endl;
+
+    flipImageInXAxis(frameBuffer);
+
+    
+    saveFrameBufferToPPMFile(frameBuffer, "image.ppm");
+}
+
+
 void renderTeapotFilledScene()
 {
     constexpr unsigned int width = 1024;
@@ -767,8 +851,9 @@ int main(int argc, char *argv[])
     //renderTeapotFilledScene();
     //renderTeapotWithLightSourceScene();
     //renderTeapotWithLightSourceAndZBufferScene();
+    //renderHeadWireframeScene();
 
-    renderHeadWireframeScene();
+    renderHeadFilledScene();
 
     return 0;
 }
