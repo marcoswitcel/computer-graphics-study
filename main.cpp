@@ -113,6 +113,28 @@ void drawWireframe(ObjModel* model, FrameBuffer* frameBuffer)
     }
 }
 
+void drawWireframe2(ObjModel* model, FrameBuffer &frameBuffer)
+{
+    const auto width = frameBuffer.width;
+    const auto height = frameBuffer.height;
+
+    for (int i = 0; i < model->facesLength(); i++)
+    {
+        auto face = model->getFace(i);
+        for (int v = 0; v < 3; v++)
+        {
+            Vec3f v0 = model->getVert(face[v]);
+            Vec3f v1 = model->getVert(face[(v+1)%3]);
+            int x0 = (v0.x*300.0) + width/2.0;
+            int y0 = (v0.y*300.0) + height/2.0;
+            int x1 = (v1.x*300.0) + width/2.0;
+            int y1 = (v1.y*300.0) + height/2.0;
+
+            drawLine2(frameBuffer, x0, y0, x1, y1, S_RGB { 255, 255, 255 });
+        }
+    }
+}
+
 void triangle(FrameBuffer &frameBuffer, Vec2i a, Vec2i b, Vec2i c, S_RGB color)
 {
     if (a.y > b.y) std::swap(a, b);
@@ -502,6 +524,36 @@ void flipImageInXAxis(FrameBuffer &frameBuffer)
     }
 }
 
+void renderHeadWireframeScene()
+{
+    constexpr unsigned int width = 1024;
+    constexpr unsigned int height = 768;
+    const int fov = M_PI / 2.;
+
+    FrameBuffer frameBuffer = {
+        width : width,
+        height : height,
+        buffer : vector<S_RGB>(width * height),
+    };
+
+    const auto RED = S_RGB { 255, 0, 0 };
+    const auto WHITE = S_RGB { 255, 255, 255 };
+    const auto BLACK = S_RGB { 0, 0, 0 };
+
+    fill(frameBuffer, BLACK);
+
+    ObjModel* model = ObjModel::readObjModel2("assets/models/african_head.obj");
+
+    drawRect(frameBuffer, 10, 10, 700, 100, S_RGB { 255, 255, 0 });
+    drawRect(frameBuffer, 20, 20, 150, 730, S_RGB { 0, 255, 255 });
+
+    drawWireframe2(model, frameBuffer);
+
+    flipImageInXAxis(frameBuffer);
+    
+    saveFrameBufferToPPMFile(frameBuffer, "image.ppm");
+}
+
 void renderTeapotWireframeScene()
 {
     constexpr unsigned int width = 1024;
@@ -712,10 +764,11 @@ int main(int argc, char *argv[])
     //renderTeapotWireframeScene();
     //renderTriangleTestScene();
     //renderProblematicTriangle();
-    // renderTeapotFilledScene();
+    //renderTeapotFilledScene();
     //renderTeapotWithLightSourceScene();
+    //renderTeapotWithLightSourceAndZBufferScene();
 
-    renderTeapotWithLightSourceAndZBufferScene();
+    renderHeadWireframeScene();
 
     return 0;
 }
