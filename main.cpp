@@ -312,6 +312,60 @@ inline Vec3f barycentric(const Vec3f &a, const Vec3f &b, const Vec3f &c, const V
     return Vec3f { -1, 1, 1 };
 }
 
+void triangle3(FrameBuffer &frameBuffer, ZBuffer &zBuffer, Vec3f a, Vec3f b, Vec3f c, S_RGB color)
+{
+    const auto width = frameBuffer.width;
+    const auto height = frameBuffer.height;
+    auto &buffer = frameBuffer.buffer;
+
+
+    Vec3f bboxmin = {(float) ( width - 1), (float) (height - 1) };
+    Vec3f bboxmax = { 0, 0 };
+    Vec3f clamp = {(float) ( width - 1), (float) (height - 1) };
+
+
+    Vec3f pts[3] = { a, b, c};
+    for (int i = 0; i < 3; i++)
+    {
+        bboxmin.x = std::max(0.f, std::min(bboxmin.x, pts[i].x));
+        bboxmin.y = std::max(0.f, std::min(bboxmin.y, pts[i].y));
+
+        bboxmax.x = std::min(clamp.x, std::max(bboxmax.x, pts[i].x));
+        bboxmax.y = std::min(clamp.y, std::max(bboxmax.y, pts[i].y));
+    }
+
+    Vec3f p;
+    for (p.x = bboxmin.x; p.x <= bboxmax.x; p.x++)
+    {
+        for (p.y = bboxmin.y; p.y <= bboxmax.y; p.y++)
+        {
+            Vec3f bsScreen = barycentric(a, b, c, p);
+            
+            uint32_t colorIndex = p.y * frameBuffer.width + p.x;
+
+            if (bsScreen.x < 0 || bsScreen.y < 0 || bsScreen.z < 0 ) {
+                continue;
+            };
+
+            if (colorIndex > buffer.size()) {
+                continue;
+            };
+
+            p.z = 0;
+
+            // calcula posição no exio z do pixel atual
+            p.z += a.z * bsScreen.x;
+            p.z += b.z * bsScreen.y;
+            p.z += c.z * bsScreen.z;
+
+            if (zBuffer.buffer[colorIndex] < p.z) {
+                zBuffer.buffer[colorIndex] = p.z;
+                buffer[colorIndex] = color;
+            }
+        }
+    }
+}
+
 void triangle(FrameBuffer &frameBuffer, ZBuffer &zBuffer, Vec3f a, Vec3f b, Vec3f c, S_RGB color)
 {
     auto &buffer = frameBuffer.buffer;
@@ -540,6 +594,40 @@ void drawModel2(ObjModel* model, FrameBuffer &frameBuffer)
     }
 }
 
+void drawModelWithLightSourceAndZBuffer2(ObjModel* model, FrameBuffer &frameBuffer, ZBuffer &zBuffer)
+{
+    const auto width = frameBuffer.width;
+    const auto height = frameBuffer.height;
+
+    Vec3f lightDir = { 0, 0, -1 };
+    for (int i = 0; i < model->facesLength(); i++)
+    {
+        auto face = model->getFace(i);
+        Vec3f screenCoords[3];
+        Vec3f worldCoords[3];
+        for (int v = 0; v < 3; v++)
+        {
+            Vec3f vert = model->getVert(face[v]);
+            screenCoords[v].x = (vert.x*400.0) + width/2.0;
+            screenCoords[v].y = (vert.y*400.0) + height/2.0;
+            screenCoords[v].z = vert.z;
+            worldCoords[v] = vert;
+        };
+        
+        Vec3f n = (worldCoords[2] - worldCoords[0]) ^ (worldCoords[1] - worldCoords[0]);
+        n.normalize();
+        float intensity = n * lightDir;
+        if (intensity > 0) {
+            triangle3(frameBuffer, zBuffer, screenCoords[0], screenCoords[1], screenCoords[2], S_RGB { (uint8_t) (intensity * 255), (uint8_t) (intensity * 255), (uint8_t) (intensity * 255) });
+            /* triangle3(frameBuffer, screenCoords[0], screenCoords[1], screenCoords[2], S_RGB {
+                .r = (uint8_t) (std::rand() % 255),
+                .g = (uint8_t) (std::rand() % 255),
+                .b = (uint8_t) (std::rand() % 255),
+            });  */
+        }
+    }
+}
+
 
 void fill(FrameBuffer &frameBuffer, S_RGB color)
 {
@@ -741,6 +829,43 @@ void renderTeapotWithLightSourceAndZBufferScene()
 }
 
 
+void renderHeadFilledWithLightSourceAndZBufferScene()
+{
+    constexpr unsigned int width = 1024;
+    constexpr unsigned int height = 1024;
+    const int fov = M_PI / 2.;
+
+    FrameBuffer frameBuffer = {
+        width : width,
+        height : height,
+        buffer : vector<S_RGB>(width * height),
+    };
+
+    ZBuffer zBuffer(width, height);
+
+    assert(frameBuffer.buffer.size() == zBuffer.buffer.size() && "Devem ter o mesmo tamanho");
+
+    const auto RED = S_RGB { 255, 0, 0 };
+    const auto WHITE = S_RGB { 255, 255, 255 };
+    const auto BLACK = S_RGB { 0, 0, 0 };
+
+
+    fillLinearGradient(frameBuffer, S_RGB { 230, 100, 101 }, S_RGB { 145, 152, 229 });
+
+    ObjModel* model = ObjModel::readObjModel2("assets/models/african_head.obj");
+
+    auto start = std::chrono::high_resolution_clock::now();
+    drawModelWithLightSourceAndZBuffer2(model, frameBuffer, zBuffer);
+    auto end = std::chrono::high_resolution_clock::now();
+    auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+    std::cout << "tempo renderizando: " << elapsedTime.count() << " ms "<< std::endl;
+
+    flipImageInXAxis(frameBuffer);
+
+    
+    saveFrameBufferToPPMFile(frameBuffer, "image.ppm");
+}
+
 void renderHeadFilledScene()
 {
     constexpr unsigned int width = 1024;
@@ -890,8 +1015,9 @@ int main(int argc, char *argv[])
     //renderTeapotWithLightSourceScene();
     //renderTeapotWithLightSourceAndZBufferScene();
     //renderHeadWireframeScene();
+    //renderHeadFilledScene();
 
-    renderHeadFilledScene();
+    renderHeadFilledWithLightSourceAndZBufferScene();
 
     return 0;
 }
