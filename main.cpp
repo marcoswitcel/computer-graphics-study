@@ -8,6 +8,7 @@
 
 #include "color_and_image.h"
 #include "obj_model.cpp"
+#include "image_data.cpp"
 
 using namespace std;
 
@@ -1006,6 +1007,33 @@ void renderProblematicTriangle()
     saveFrameBufferToPPMFile(frameBuffer, "image.ppm");
 }
 
+void renderSampledImage()
+{
+    constexpr unsigned int width = 240;
+    constexpr unsigned int height = 297;
+
+    FrameBuffer frameBuffer = {
+        width : width,
+        height : height,
+        buffer : vector<S_RGB>(width * height),
+    };
+
+    // const auto BLACK = S_RGB { 0, 0, 0 };
+    // fill(frameBuffer, BLACK);
+
+    unsigned index = 0;
+    for (auto &color : frameBuffer.buffer)
+    {
+        color.r = image_scream[index + 0];
+        color.g = image_scream[index + 1];
+        color.b = image_scream[index + 2];
+
+        index += 4;
+    }
+    
+    saveFrameBufferToPPMFile(frameBuffer, "image.ppm");
+}
+
 int main(int argc, char *argv[])
 {
     //renderTeapotWireframeScene();
@@ -1017,7 +1045,10 @@ int main(int argc, char *argv[])
     //renderHeadWireframeScene();
     //renderHeadFilledScene();
 
-    renderHeadFilledWithLightSourceAndZBufferScene();
+    // @todo João, parei aqui
+    //renderHeadFilledWithLightSourceAndZBufferScene();
+
+    renderSampledImage();
 
     return 0;
 }
