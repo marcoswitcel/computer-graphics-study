@@ -18,6 +18,13 @@ struct FrameBuffer
     std::vector<S_RGB> buffer;
 };
 
+struct Texture2D
+{
+    unsigned int width;
+    unsigned int height;
+    std::vector<S_RGB> buffer;
+};
+
 class ZBuffer
 {
 public:

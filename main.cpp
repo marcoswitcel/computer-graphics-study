@@ -629,6 +629,28 @@ void drawModelWithLightSourceAndZBuffer2(ObjModel* model, FrameBuffer &frameBuff
     }
 }
 
+void drawTextureToFrame(Texture2D &texture2D, FrameBuffer &frameBuffer, unsigned x, unsigned y, unsigned width, unsigned height)
+{
+    for (unsigned i = 0; i < height; i++)
+    {
+        if (i >= texture2D.height) break;
+
+        for (unsigned j = 0; j < width; j++)
+        {
+            if (j >= texture2D.width) break;
+
+            auto textureColorIndex = i * texture2D.width + j;
+            if ((x + j) >= frameBuffer.width) break;
+            auto frameBufferColorIndex = (y + i) * frameBuffer.width + (x + j);
+            
+            if (textureColorIndex >= texture2D.buffer.size()) break;
+            if (frameBufferColorIndex >= frameBuffer.buffer.size()) break;
+
+            auto &color = frameBuffer.buffer[frameBufferColorIndex];
+            color = texture2D.buffer[textureColorIndex];
+        }   
+    }
+}
 
 void fill(FrameBuffer &frameBuffer, S_RGB color)
 {
@@ -1021,8 +1043,15 @@ void renderSampledImage()
     // const auto BLACK = S_RGB { 0, 0, 0 };
     // fill(frameBuffer, BLACK);
 
+    Texture2D texture = {
+        width : width,
+        height : height,
+        buffer : vector<S_RGB>(width * height),
+    };
+
+    // Por hora carregando manual os dados do array para a textura
     unsigned index = 0;
-    for (auto &color : frameBuffer.buffer)
+    for (auto &color : texture.buffer)
     {
         color.r = image_scream[index + 0];
         color.g = image_scream[index + 1];
@@ -1030,6 +1059,8 @@ void renderSampledImage()
 
         index += 4;
     }
+
+    drawTextureToFrame(texture, frameBuffer, 0, 0, 240, 297);
     
     saveFrameBufferToPPMFile(frameBuffer, "image.ppm");
 }
