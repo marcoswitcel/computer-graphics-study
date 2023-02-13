@@ -1031,8 +1031,8 @@ void renderProblematicTriangle()
 
 void renderSampledImage()
 {
-    constexpr unsigned int width = 240;
-    constexpr unsigned int height = 297;
+    constexpr unsigned int width = 1024;
+    constexpr unsigned int height = 768;
 
     FrameBuffer frameBuffer = {
         width : width,
@@ -1040,27 +1040,30 @@ void renderSampledImage()
         buffer : vector<S_RGB>(width * height),
     };
 
-    // const auto BLACK = S_RGB { 0, 0, 0 };
-    // fill(frameBuffer, BLACK);
+    const auto BLACK = S_RGB { 0, 0, 0 };
 
-    Texture2D texture = {
-        width : width,
-        height : height,
-        buffer : vector<S_RGB>(width * height),
+    Texture2D textureScream = {
+        width : 240,
+        height : 297,
+        buffer : vector<S_RGB>(240 * 297),
     };
+
+    // @todo João, talvez implementar uma função que produza uma versão resized (usando sampling) da textura
 
     // Por hora carregando manual os dados do array para a textura
     unsigned index = 0;
-    for (auto &color : texture.buffer)
+    for (auto &color : textureScream.buffer)
     {
         color.r = image_scream[index + 0];
         color.g = image_scream[index + 1];
         color.b = image_scream[index + 2];
 
-        index += 4;
+        index += 4; // tem quatro componentes de um byte (rgba)
     }
 
-    drawTextureToFrame(texture, frameBuffer, 0, 0, 240, 297);
+    fill(frameBuffer, BLACK);
+
+    drawTextureToFrame(textureScream, frameBuffer, 0, 0, textureScream.width, textureScream.height);
     
     saveFrameBufferToPPMFile(frameBuffer, "image.ppm");
 }
