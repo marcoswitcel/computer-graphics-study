@@ -662,7 +662,7 @@ S_RGB sampler2D(Texture2D &texture, float xNormalized, float yNormalized)
     } else {
         index = iy * width + ix;
     }
-    S_RGB c3 = texture.buffer[index];;
+    S_RGB c3 = texture.buffer[index];
 
     // @todo João, terminar de usar as cores selecionadas com a função `lerp`
     return c1;
@@ -1096,7 +1096,7 @@ void renderProblematicTriangle()
 void renderSampledImage()
 {
     constexpr unsigned int width = 1024;
-    constexpr unsigned int height = 768;
+    constexpr unsigned int height = 1024;
 
     FrameBuffer frameBuffer = {
         width : width,
@@ -1136,6 +1136,10 @@ void renderSampledImage()
     Texture2D textureScreamUppSampled = downsampleTexture(textureScream, 480, 594);
 
     drawTextureToFrame(textureScreamUppSampled, frameBuffer, 380, 0, textureScreamUppSampled.width, textureScreamUppSampled.height);
+
+    Texture2D textureScreamStretchedSampled = downsampleTexture(textureScream, 1000, 594);
+
+    drawTextureToFrame(textureScreamStretchedSampled, frameBuffer, 0, 550, textureScreamStretchedSampled.width, textureScreamStretchedSampled.height);
     
     saveFrameBufferToPPMFile(frameBuffer, "image.ppm");
 }
