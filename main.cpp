@@ -629,6 +629,45 @@ void drawModelWithLightSourceAndZBuffer2(ObjModel* model, FrameBuffer &frameBuff
     }
 }
 
+S_RGB sampler2D(Texture2D &texture, float xNormalized, float yNormalized)
+{
+    const auto width = texture.width;
+    const auto height = texture.height;
+
+    float x = width * xNormalized;
+    float y = height * yNormalized;
+    int ix = (int) x;
+    int iy = (int) y;
+    float xDecimal = (x - (long) x);
+    float yDecimal = (y - (long) y);
+
+    int horizontal = xDecimal > 0.5 ? 1 : -1;
+    int vertical = yDecimal > 0.5 ? 1 : -1;
+
+    int index = iy * width + ix;
+    S_RGB c0 = texture.buffer[index];
+    if ((ix + horizontal >= 0) && (ix + horizontal < width)) {
+        index += horizontal;
+    }
+    S_RGB c1 = texture.buffer[index];
+    if ((iy + vertical >= 0) && (iy + vertical < height)) {
+        index += vertical * width;
+    } else {
+        index = iy * width + ix;
+    }
+    S_RGB c2 = texture.buffer[index];
+    if (((ix + horizontal >= 0) && (ix + horizontal < width)) && ((iy + vertical >= 0) && (iy + vertical < height))) {
+        index += horizontal;
+        index += vertical * width;
+    } else {
+        index = iy * width + ix;
+    }
+    S_RGB c3 = texture.buffer[index];;
+
+    // @todo João, terminar de usar as cores selecionadas com a função `lerp`
+    return c1;
+}
+
 Texture2D downsampleTexture(Texture2D &texture, const unsigned width, const unsigned height)
 {
     Texture2D downsampledTexture = {
@@ -637,9 +676,18 @@ Texture2D downsampleTexture(Texture2D &texture, const unsigned width, const unsi
         buffer : vector<S_RGB>(width * height),
     };
 
-    for (auto &color : downsampledTexture.buffer)
+    for (unsigned i = 0; i < height; i++)
     {
-        color.r = 255;
+        for (unsigned j = 0; j < width; j++)
+        {
+            auto index = i * width + j;
+            auto &color = downsampledTexture.buffer[index];
+
+            // @todo João, avaliar o efeito de adicionar 0.5 ao `i` e `j` antes de multiplicar
+            float y = i / (float) height;
+            float x = j / (float) width;
+            color = sampler2D(texture, x, y);
+        }
     }
 
     return downsampledTexture;
@@ -1084,6 +1132,10 @@ void renderSampledImage()
     Texture2D textureScreamDownSampled = downsampleTexture(textureScream, 120, 148);
 
     drawTextureToFrame(textureScreamDownSampled, frameBuffer, 250, 0, textureScreamDownSampled.width, textureScreamDownSampled.height);
+
+    Texture2D textureScreamUppSampled = downsampleTexture(textureScream, 480, 594);
+
+    drawTextureToFrame(textureScreamUppSampled, frameBuffer, 380, 0, textureScreamUppSampled.width, textureScreamUppSampled.height);
     
     saveFrameBufferToPPMFile(frameBuffer, "image.ppm");
 }
