@@ -629,6 +629,22 @@ void drawModelWithLightSourceAndZBuffer2(ObjModel* model, FrameBuffer &frameBuff
     }
 }
 
+Texture2D downsampleTexture(Texture2D &texture, const unsigned width, const unsigned height)
+{
+    Texture2D downsampledTexture = {
+        width : width,
+        height : height,
+        buffer : vector<S_RGB>(width * height),
+    };
+
+    for (auto &color : downsampledTexture.buffer)
+    {
+        color.r = 255;
+    }
+
+    return downsampledTexture;
+}
+
 void drawTextureToFrame(Texture2D &texture2D, FrameBuffer &frameBuffer, unsigned x, unsigned y, unsigned width, unsigned height)
 {
     for (unsigned i = 0; i < height; i++)
@@ -1064,6 +1080,10 @@ void renderSampledImage()
     fill(frameBuffer, BLACK);
 
     drawTextureToFrame(textureScream, frameBuffer, 0, 0, textureScream.width, textureScream.height);
+
+    Texture2D textureScreamDownSampled = downsampleTexture(textureScream, 120, 148);
+
+    drawTextureToFrame(textureScreamDownSampled, frameBuffer, 250, 0, textureScreamDownSampled.width, textureScreamDownSampled.height);
     
     saveFrameBufferToPPMFile(frameBuffer, "image.ppm");
 }
