@@ -645,19 +645,20 @@ S_RGB sampler2D(Texture2D &texture, float xNormalized, float yNormalized)
     int vertical = yDecimal > 0.5 ? 1 : -1;
 
     int index = iy * width + ix;
+
     S_RGB c0 = texture.buffer[index];
     if ((ix + horizontal >= 0) && (ix + horizontal < width)) {
-        index += horizontal;
+        index = iy * width + ix + horizontal;
     }
     S_RGB c1 = texture.buffer[index];
     if ((iy + vertical >= 0) && (iy + vertical < height)) {
-        index += vertical * width;
+        index = iy * width + ix + vertical * width;
     } else {
         index = iy * width + ix;
     }
     S_RGB c2 = texture.buffer[index];
     if (((ix + horizontal >= 0) && (ix + horizontal < width)) && ((iy + vertical >= 0) && (iy + vertical < height))) {
-        index += horizontal;
+        index = iy * width + ix + horizontal;
         index += vertical * width;
     } else {
         index = iy * width + ix;
@@ -665,7 +666,7 @@ S_RGB sampler2D(Texture2D &texture, float xNormalized, float yNormalized)
     S_RGB c3 = texture.buffer[index];
 
     // @todo João, terminar de usar as cores selecionadas com a função `lerp`
-    return c1;
+    return c0;
 }
 
 Texture2D downsampleTexture(Texture2D &texture, const unsigned width, const unsigned height)
