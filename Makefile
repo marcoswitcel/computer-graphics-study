@@ -8,7 +8,7 @@ run: a.out
 	@rm ./a.out
 
 run-and-display: run
-	xdg-open *.ppm
+	xdg-open image.ppm
 
 clear:
 	rm ./*.ppm ./*.out

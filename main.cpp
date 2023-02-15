@@ -629,6 +629,15 @@ void drawModelWithLightSourceAndZBuffer2(ObjModel* model, FrameBuffer &frameBuff
     }
 }
 
+static inline S_RGB lerp(S_RGB v0, S_RGB v1, float percent)
+{
+    return S_RGB {
+        .r = (uint8_t) (v0.r + ((v1.r - v0.r) * percent)),
+        .g = (uint8_t) (v0.g + ((v1.g - v0.g) * percent)),
+        .b = (uint8_t) (v0.b + ((v1.b - v0.b) * percent)),
+    };
+}
+
 S_RGB sampler2D(Texture2D &texture, float xNormalized, float yNormalized)
 {
     const auto width = texture.width;
@@ -665,8 +674,12 @@ S_RGB sampler2D(Texture2D &texture, float xNormalized, float yNormalized)
     }
     S_RGB c3 = texture.buffer[index];
 
-    // @todo João, terminar de usar as cores selecionadas com a função `lerp`
-    return c0;
+    // @todo João, implementação incorreta e malfuncionando
+    S_RGB l0 = horizontal > 0 ? lerp(c0, c2, xDecimal - 0.5) : lerp(c2, c0, xDecimal + 0.5);
+    S_RGB l1 = horizontal > 0 ? lerp(c1, c3, xDecimal - 0.5) : lerp(c3, c1, xDecimal + 0.5);
+    S_RGB lr = vertical > 0 ? lerp(l0, l1, xDecimal - 0.5) : lerp(l1, l0, xDecimal + 0.5);
+
+    return lr;
 }
 
 Texture2D downsampleTexture(Texture2D &texture, const unsigned width, const unsigned height)
