@@ -638,7 +638,15 @@ static inline S_RGB lerp(S_RGB v0, S_RGB v1, float percent)
     };
 }
 
-S_RGB sampler2D(Texture2D &texture, float xNormalized, float yNormalized)
+/**
+ * @brief Primeira implementação que fiz, ela não funciona corretamente, fique com pena de comentar XD
+ * 
+ * @param texture 
+ * @param xNormalized 
+ * @param yNormalized 
+ * @return S_RGB 
+ */
+S_RGB sampler2D_antigo(Texture2D &texture, float xNormalized, float yNormalized)
 {
     const auto width = texture.width;
     const auto height = texture.height;
@@ -680,6 +688,28 @@ S_RGB sampler2D(Texture2D &texture, float xNormalized, float yNormalized)
     S_RGB lr = vertical > 0 ? lerp(l0, l1, xDecimal - 0.5) : lerp(l1, l0, xDecimal + 0.5);
 
     return lr;
+}
+
+S_RGB sampler2D(Texture2D &texture, float xNormalized, float yNormalized)
+{
+    const auto width = texture.width;
+    const auto height = texture.height;
+
+    float x = width * xNormalized;
+    float y = height * yNormalized;
+    int ix = (int) x;
+    int iy = (int) y;
+    float xDecimal = (x - (long) x);
+    float yDecimal = (y - (long) y);
+
+    int horizontal = xDecimal > 0.5 ? 1 : -1;
+    int vertical = yDecimal > 0.5 ? 1 : -1;
+
+    int index = iy * width + ix;
+
+    S_RGB c0 = texture.buffer[index];
+
+    return c0;
 }
 
 Texture2D downsampleTexture(Texture2D &texture, const unsigned width, const unsigned height)
