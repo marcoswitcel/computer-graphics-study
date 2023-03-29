@@ -697,19 +697,19 @@ S_RGB sampler2D(Texture2D &texture, float xNormalized, float yNormalized)
 
     float x = width * xNormalized;
     float y = height * yNormalized;
-    int ix = (int) x;
-    int iy = (int) y;
     float xDecimal = (x - (long) x);
     float yDecimal = (y - (long) y);
 
-    int horizontal = xDecimal > 0.5 ? 1 : -1;
-    int vertical = yDecimal > 0.5 ? 1 : -1;
+    S_RGB c0 = texture.buffer[ floor(y) * width + floor(x) ];
+    S_RGB c1 = texture.buffer[ floor(y) * width + ceil(x) ];
+    S_RGB c2 = texture.buffer[ ceil(y) * width + floor(x) ];
+    S_RGB c3 = texture.buffer[ ceil(y) * width + ceil(x) ];
 
-    int index = iy * width + ix;
+    S_RGB l0 = lerp(c0, c1, xDecimal);
+    S_RGB l1 = lerp(c2, c3, xDecimal);
+    S_RGB lr = lerp(l0, l1, yDecimal);
 
-    S_RGB c0 = texture.buffer[index];
-
-    return c0;
+    return lr;
 }
 
 Texture2D downsampleTexture(Texture2D &texture, const unsigned width, const unsigned height)

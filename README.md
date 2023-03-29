@@ -8,6 +8,7 @@ Algoritmos e exemplos desenvolvidos para estudo, prática e diversão.
 * Renderizando/rasterizando linhas: [https://github.com/ssloy/tinyrenderer/wiki/Lesson-1:-Bresenham%E2%80%99s-Line-Drawing-Algorithm](https://github.com/ssloy/tinyrenderer/wiki/Lesson-1:-Bresenham%E2%80%99s-Line-Drawing-Algorithm)
 * Tutoriais sobre "profiling" com gprof [https://www.thegeekstuff.com/2012/08/gprof-tutorial/](https://www.thegeekstuff.com/2012/08/gprof-tutorial/)
 * Timers: [https://www.geeksforgeeks.org/measure-execution-time-function-cpp/](https://www.geeksforgeeks.org/measure-execution-time-function-cpp/), [https://stackoverflow.com/questions/2808398/easily-measure-elapsed-time](https://stackoverflow.com/questions/2808398/easily-measure-elapsed-time)
+* Samplers e texturas: [https://www.youtube.com/watch?v=DuQDx0ZIxa8](https://www.youtube.com/watch?v=DuQDx0ZIxa8)
 
 ### Especificidades do C++
 
