@@ -367,6 +367,103 @@ void triangle3(FrameBuffer &frameBuffer, ZBuffer &zBuffer, Vec3f a, Vec3f b, Vec
     }
 }
 
+void texturedTriangle(FrameBuffer &frameBuffer, Vec3f a, Vec3f b, Vec3f c, S_RGB color)
+{
+    auto &buffer = frameBuffer.buffer;
+
+    if (a.y > b.y) std::swap(a, b);
+    if (a.y > c.y) std::swap(a, c);
+    if (b.y > c.y) std::swap(b, c);
+
+    assert(a.y <= c.y && "deveria ser menor ou igual sempre");
+
+    int totalHeight = c.y -  a.y;
+    for (int y = a.y; y <= b.y; y++)
+    {
+        int segmentHeight = b.y - a.y + 1;
+        float alpha = (float) (y - a.y) / std::max(totalHeight, 1);
+        float beta  = (float) (y - a.y) / segmentHeight;
+
+        Vec2i p0 = {
+            .x = (int) (a.x + (c.x - a.x) * alpha),
+            .y = (int) (a.y + (c.y - a.y) * alpha),
+        };
+
+        Vec2i p1 = {
+            .x = (int) (a.x + (b.x - a.x) * beta),
+            .y = (int) (a.y + (b.y - a.y) * beta),
+        };
+
+        if (p0.x > p1.x) std::swap(p0, p1);
+
+        for (int j = p0.x; j <= p1.x; j++) {
+            uint32_t colorIndex = y * frameBuffer.width + j;
+            Vec3f pixelPosition = { .x = (float) p0.x, .y = (float) p0.y, .z = 0 };
+            Vec3f bsScreen = barycentric(a, b, c, pixelPosition);
+
+            if (bsScreen.x < 0 || bsScreen.y < 0 || bsScreen.z < 0 ) {
+                continue;
+            };
+
+            if (colorIndex > buffer.size()) {
+                continue;
+            };
+
+            pixelPosition.z = 0;
+
+            // calcula posição no exio z do pixel atual
+            pixelPosition.z += a.z * bsScreen.x;
+            pixelPosition.z += b.z * bsScreen.y;
+            pixelPosition.z += c.z * bsScreen.z;
+
+            buffer[colorIndex] = color;
+        }
+    }
+
+    for (int y = b.y; y <= c.y; y++)
+    {
+        int segmentHeight = c.y - b.y + 1;
+        float alpha = (float) (y - a.y) / std::max(totalHeight, 1);
+        float beta  = (float) (y - b.y) / segmentHeight;
+        
+        Vec2i p0 = {
+            .x = (int) (a.x + ((c.x - a.x) * alpha)),
+            .y = (int) (a.y + ((c.y - a.y) * alpha)),
+        };
+
+        Vec2i p1 = {
+            .x = (int) (b.x + ((c.x - b.x) * beta)),
+            .y = (int) (b.y + ((c.y - b.y) * beta)),
+        };
+
+
+        if (p0.x > p1.x) std::swap(p0, p1);
+
+        for (int j = p0.x; j <= p1.x; j++) {
+            uint32_t colorIndex = y * frameBuffer.width + j;
+            Vec3f pixelPosition = { .x = (float) p0.x, .y = (float) p0.y, .z = 0 };
+            Vec3f bsScreen = barycentric(a, b, c, pixelPosition);
+
+            if (bsScreen.x < 0 || bsScreen.y < 0 || bsScreen.z < 0 ) {
+                continue;
+            };
+
+            if (colorIndex > buffer.size()) {
+                continue;
+            };
+
+            pixelPosition.z = 0;
+
+            // calcula posição no exio z do pixel atual
+            pixelPosition.z += a.z * bsScreen.x;
+            pixelPosition.z += b.z * bsScreen.y;
+            pixelPosition.z += c.z * bsScreen.z;
+
+            buffer[colorIndex] = color;
+        }
+    }
+}
+
 void triangle(FrameBuffer &frameBuffer, ZBuffer &zBuffer, Vec3f a, Vec3f b, Vec3f c, S_RGB color)
 {
     auto &buffer = frameBuffer.buffer;
@@ -1191,8 +1288,6 @@ void renderSampledImage()
      * 
      */
     {
-        ZBuffer zBuffer(width, height);
-        assert(frameBuffer.buffer.size() == zBuffer.buffer.size() && "Devem ter o mesmo tamanho");
         const float scale = 150.0;
         Vec3f screenCoords[3] = {
             { .x = 0, .y = 1 },
@@ -1204,7 +1299,7 @@ void renderSampledImage()
             screenCoords[v].x = screenCoords[v].x * scale + width / 2;
             screenCoords[v].y = screenCoords[v].y * -1 * scale + height / 2; // @note invertendo o eixo y para ficar de acordo com o sentido pretendido
         };
-        triangle(frameBuffer, zBuffer, screenCoords[0], screenCoords[1], screenCoords[2], S_RGB { 255, 0, 0 });
+        texturedTriangle(frameBuffer, screenCoords[0], screenCoords[1], screenCoords[2], S_RGB { 255, 0, 0 });
     }
     
     saveFrameBufferToPPMFile(frameBuffer, "image.ppm");
