@@ -370,6 +370,8 @@ void triangle3(FrameBuffer &frameBuffer, ZBuffer &zBuffer, Vec3f a, Vec3f b, Vec
 void texturedTriangle(FrameBuffer &frameBuffer, Texture2D &texture, Vec3f a, Vec3f b, Vec3f c, Vec3f uv_a, Vec3f uv_b, Vec3f uv_c)
 {
     S_RGB color = { 255, 0, 0 };
+    const auto width = frameBuffer.width;
+    const auto height = frameBuffer.height;
     auto &buffer = frameBuffer.buffer;
 
     if (a.y > b.y) {
@@ -384,6 +386,24 @@ void texturedTriangle(FrameBuffer &frameBuffer, Texture2D &texture, Vec3f a, Vec
         std::swap(b, c);
         std::swap(uv_b, uv_c);
     }
+
+
+    Vec3f bboxmin = {(float) ( width - 1), (float) (height - 1) };
+    Vec3f bboxmax = { 0, 0 };
+    Vec3f clamp = {(float) ( width - 1), (float) (height - 1) };
+
+    Vec3f pts[3] = { a, b, c};
+    for (int i = 0; i < 3; i++)
+    {
+        bboxmin.x = std::max(0.f, std::min(bboxmin.x, pts[i].x));
+        bboxmin.y = std::max(0.f, std::min(bboxmin.y, pts[i].y));
+
+        bboxmax.x = std::min(clamp.x, std::max(bboxmax.x, pts[i].x));
+        bboxmax.y = std::min(clamp.y, std::max(bboxmax.y, pts[i].y));
+    }
+
+    float boxHeight = bboxmax.x - bboxmin.x;
+    float boxWidth = bboxmax.y - bboxmin.y;
 
     assert(a.y <= c.y && "deveria ser menor ou igual sempre");
 
@@ -427,9 +447,9 @@ void texturedTriangle(FrameBuffer &frameBuffer, Texture2D &texture, Vec3f a, Vec
             pixelPosition.z += c.z * bsScreen.z;
 
             S_RGB sampler2D(Texture2D &texture, float xNormalized, float yNormalized);
-            buffer[colorIndex] = sampler2D(texture, 0.11, 0.11);;
-
-            buffer[colorIndex] = color;
+            float x = (bboxmax.x - (float) j) / width ;
+            float y = (bboxmax.y - (float) p0.y) / height;
+            buffer[colorIndex] = sampler2D(texture, x, y);
         }
     }
 
@@ -1300,8 +1320,9 @@ void renderSampledImage()
      * para adicionar coordenadas UV's.
      * 
      */
+    for (float i = 1.0; i < 4.0; i++)
     {
-        const float scale = 100.0;
+        const float scale = 100.0 * i;
         Vec3f screenCoords[3] = {
             { .x = 0, .y = 1 },
             { .x = 1, .y = -1 },
@@ -1314,8 +1335,8 @@ void renderSampledImage()
         };
         for (int v = 0; v < 3; v++)
         {
-            screenCoords[v].x = screenCoords[v].x * scale + width / 4;
-            screenCoords[v].y = screenCoords[v].y * -1 * scale + height / 3; // @note invertendo o eixo y para ficar de acordo com o sentido pretendido
+            screenCoords[v].x = screenCoords[v].x * scale + width / 4 + scale;
+            screenCoords[v].y = screenCoords[v].y * -1 * scale + height / 2; // @note invertendo o eixo y para ficar de acordo com o sentido pretendido
         };
         texturedTriangle(
             frameBuffer,
