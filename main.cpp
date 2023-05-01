@@ -367,7 +367,15 @@ void triangle3(FrameBuffer &frameBuffer, ZBuffer &zBuffer, Vec3f a, Vec3f b, Vec
     }
 }
 
-void texturedTriangle(FrameBuffer &frameBuffer, Texture2D &texture, Vec3f a, Vec3f b, Vec3f c, Vec3f uv_a, Vec3f uv_b, Vec3f uv_c)
+static inline Vec2f lerp(Vec2f v0, Vec2f v1, float percent)
+{
+    return Vec2f {
+        .x = v0.x + ((v1.x - v0.x) * percent),
+        .y = v0.y + ((v1.y - v0.y) * percent),
+    };
+}
+
+void texturedTriangle(FrameBuffer &frameBuffer, Texture2D &texture, Vec3f a, Vec3f b, Vec3f c, Vec2f uv_a, Vec2f uv_b, Vec2f uv_c)
 {
     S_RGB color = { 255, 0, 0 };
     const auto width = frameBuffer.width;
@@ -446,9 +454,16 @@ void texturedTriangle(FrameBuffer &frameBuffer, Texture2D &texture, Vec3f a, Vec
             pixelPosition.z += b.z * bsScreen.y;
             pixelPosition.z += c.z * bsScreen.z;
 
+            /**
+             * @note João, todo essa secção precisa ser terminada
+             * @note João, todo essa secção precisa ser otimizada
+             */
             S_RGB sampler2D(Texture2D &texture, float xNormalized, float yNormalized);
             float x = (bboxmax.x - (float) j) / width ;
             float y = (bboxmax.y - (float) p0.y) / height;
+            // Vec2f l0 = lerp(uv_a, uv_c, y);
+            // Vec2f l1 = lerp(c2, c3, y);
+            // Vec2f lr = lerp(l0, l1, y);
             buffer[colorIndex] = sampler2D(texture, x, y);
         }
     }
@@ -1328,7 +1343,7 @@ void renderSampledImage()
             { .x = 1, .y = -1 },
             { .x = -1, .y = -1 },
         };
-        Vec3f uvs[3] = {
+        Vec2f uvs[3] = {
             { .x = 0.0, .y = 1.0 },
             { .x = 0.5, .y = 0.0 },
             { .x = 1.0, .y = 1.0 },

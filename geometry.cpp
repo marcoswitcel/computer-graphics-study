@@ -36,6 +36,10 @@ typedef struct Vec3f {
     }
 } Vec3f;
 
+typedef struct Vec2f {
+    float x, y;
+} Vec2f;
+
 typedef struct Vec2i {
     int x, y;
 } Vec2i;
