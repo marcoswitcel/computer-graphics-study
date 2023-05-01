@@ -372,9 +372,18 @@ void texturedTriangle(FrameBuffer &frameBuffer, Texture2D &texture, Vec3f a, Vec
     S_RGB color = { 255, 0, 0 };
     auto &buffer = frameBuffer.buffer;
 
-    if (a.y > b.y) std::swap(a, b);
-    if (a.y > c.y) std::swap(a, c);
-    if (b.y > c.y) std::swap(b, c);
+    if (a.y > b.y) {
+        std::swap(a, b);
+        std::swap(uv_a, uv_b);
+    }
+    if (a.y > c.y) {
+        std::swap(a, c);
+        std::swap(uv_a, uv_c);
+    }
+    if (b.y > c.y) {
+        std::swap(b, c);
+        std::swap(uv_b, uv_c);
+    }
 
     assert(a.y <= c.y && "deveria ser menor ou igual sempre");
 
@@ -416,6 +425,9 @@ void texturedTriangle(FrameBuffer &frameBuffer, Texture2D &texture, Vec3f a, Vec
             pixelPosition.z += a.z * bsScreen.x;
             pixelPosition.z += b.z * bsScreen.y;
             pixelPosition.z += c.z * bsScreen.z;
+
+            S_RGB sampler2D(Texture2D &texture, float xNormalized, float yNormalized);
+            buffer[colorIndex] = sampler2D(texture, 0.11, 0.11);;
 
             buffer[colorIndex] = color;
         }
@@ -1289,7 +1301,7 @@ void renderSampledImage()
      * 
      */
     {
-        const float scale = 150.0;
+        const float scale = 100.0;
         Vec3f screenCoords[3] = {
             { .x = 0, .y = 1 },
             { .x = 1, .y = -1 },
@@ -1302,8 +1314,8 @@ void renderSampledImage()
         };
         for (int v = 0; v < 3; v++)
         {
-            screenCoords[v].x = screenCoords[v].x * scale + width / 2;
-            screenCoords[v].y = screenCoords[v].y * -1 * scale + height / 2; // @note invertendo o eixo y para ficar de acordo com o sentido pretendido
+            screenCoords[v].x = screenCoords[v].x * scale + width / 4;
+            screenCoords[v].y = screenCoords[v].y * -1 * scale + height / 3; // @note invertendo o eixo y para ficar de acordo com o sentido pretendido
         };
         texturedTriangle(
             frameBuffer,
