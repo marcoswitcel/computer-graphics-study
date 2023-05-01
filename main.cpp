@@ -367,8 +367,9 @@ void triangle3(FrameBuffer &frameBuffer, ZBuffer &zBuffer, Vec3f a, Vec3f b, Vec
     }
 }
 
-void texturedTriangle(FrameBuffer &frameBuffer, Vec3f a, Vec3f b, Vec3f c, S_RGB color)
+void texturedTriangle(FrameBuffer &frameBuffer, Texture2D &texture, Vec3f a, Vec3f b, Vec3f c, Vec3f uv_a, Vec3f uv_b, Vec3f uv_c)
 {
+    S_RGB color = { 255, 0, 0 };
     auto &buffer = frameBuffer.buffer;
 
     if (a.y > b.y) std::swap(a, b);
@@ -1294,12 +1295,26 @@ void renderSampledImage()
             { .x = 1, .y = -1 },
             { .x = -1, .y = -1 },
         };
+        Vec3f uvs[3] = {
+            { .x = 0.0, .y = 1.0 },
+            { .x = 0.5, .y = 0.0 },
+            { .x = 1.0, .y = 1.0 },
+        };
         for (int v = 0; v < 3; v++)
         {
             screenCoords[v].x = screenCoords[v].x * scale + width / 2;
             screenCoords[v].y = screenCoords[v].y * -1 * scale + height / 2; // @note invertendo o eixo y para ficar de acordo com o sentido pretendido
         };
-        texturedTriangle(frameBuffer, screenCoords[0], screenCoords[1], screenCoords[2], S_RGB { 255, 0, 0 });
+        texturedTriangle(
+            frameBuffer,
+            textureScream,
+            screenCoords[0],
+            screenCoords[1],
+            screenCoords[2],
+            uvs[0],
+            uvs[1],
+            uvs[2]
+        );
     }
     
     saveFrameBufferToPPMFile(frameBuffer, "image.ppm");
