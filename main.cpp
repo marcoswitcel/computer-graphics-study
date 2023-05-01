@@ -1184,6 +1184,28 @@ void renderSampledImage()
     Texture2D textureScreamStretchedSampled = downsampleTexture(textureScream, 1000, 594);
 
     drawTextureToFrame(textureScreamStretchedSampled, frameBuffer, 0, 550, textureScreamStretchedSampled.width, textureScreamStretchedSampled.height);
+
+    /**
+     * @brief Desenhando um triangulo apenas facilitar a visualização do que seria necessário
+     * para adicionar coordenadas UV's.
+     * 
+     */
+    {
+        ZBuffer zBuffer(width, height);
+        assert(frameBuffer.buffer.size() == zBuffer.buffer.size() && "Devem ter o mesmo tamanho");
+        const float scale = 150.0;
+        Vec3f screenCoords[3] = {
+            { .x = 0, .y = 1 },
+            { .x = 1, .y = -1 },
+            { .x = -1, .y = -1 },
+        };
+        for (int v = 0; v < 3; v++)
+        {
+            screenCoords[v].x = screenCoords[v].x * scale + width / 2;
+            screenCoords[v].y = screenCoords[v].y * -1 * scale + height / 2; // @note invertendo o eixo y para ficar de acordo com o sentido pretendido
+        };
+        triangle(frameBuffer, zBuffer, screenCoords[0], screenCoords[1], screenCoords[2], S_RGB { 255, 0, 0 });
+    }
     
     saveFrameBufferToPPMFile(frameBuffer, "image.ppm");
 }
