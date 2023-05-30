@@ -9,6 +9,7 @@
 #include "color_and_image.h"
 #include "obj_model.cpp"
 #include "image_data.cpp"
+#include "text_rendering.cpp"
 
 using namespace std;
 
@@ -1329,6 +1330,12 @@ void renderSampledImage()
     Texture2D textureScreamStretchedSampled = downsampleTexture(textureScream, 1000, 594);
 
     drawTextureToFrame(textureScreamStretchedSampled, frameBuffer, 0, 550, textureScreamStretchedSampled.width, textureScreamStretchedSampled.height);
+
+    // @todo João, código de teste do render de texto básico
+    {
+        Texture2D glyph = createGlyph();
+        drawTextureToFrame(glyph, frameBuffer, 0, 550, glyph.width, glyph.height);
+    }
 
     /**
      * @brief Desenhando um triangulo apenas facilitar a visualização do que seria necessário
