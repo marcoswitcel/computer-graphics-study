@@ -16,6 +16,9 @@ static uint8_t font[] = {
 
 Texture2D createGlyph()
 {
+    S_RGB fillColor = { 255, 0, 0, };
+    S_RGB bgColor = { 0, 255, 0, };
+
     Texture2D glyph = {
         width : 8,
         height : 8,
@@ -23,9 +26,17 @@ Texture2D createGlyph()
     };
 
     // @todo João, falta a implementação correta aqui
-    for (S_RGB &rgb : glyph.buffer)
+    for (uint8_t i = 8; i--;)
     {
-        rgb = { 255, 0, 0, };
+        uint8_t data = font[i];
+        glyph.buffer[i * 8 + 0] = ((data << 0) & 0b10000000) ? fillColor : bgColor;
+        glyph.buffer[i * 8 + 1] = ((data << 1) & 0b01000000) ? fillColor : bgColor;
+        glyph.buffer[i * 8 + 2] = ((data << 2) & 0b00100000) ? fillColor : bgColor;
+        glyph.buffer[i * 8 + 3] = ((data << 3) & 0b00010000) ? fillColor : bgColor;
+        glyph.buffer[i * 8 + 4] = ((data << 4) & 0b00001000) ? fillColor : bgColor;
+        glyph.buffer[i * 8 + 5] = ((data << 5) & 0b00000100) ? fillColor : bgColor;
+        glyph.buffer[i * 8 + 6] = ((data << 6) & 0b00000010) ? fillColor : bgColor;
+        glyph.buffer[i * 8 + 7] = ((data << 7) & 0b00000001) ? fillColor : bgColor;
     }
 
     return glyph; 

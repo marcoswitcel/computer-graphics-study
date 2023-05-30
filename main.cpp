@@ -1334,7 +1334,8 @@ void renderSampledImage()
     // @todo João, código de teste do render de texto básico
     {
         Texture2D glyph = createGlyph();
-        drawTextureToFrame(glyph, frameBuffer, 0, 550, glyph.width, glyph.height);
+        Texture2D glyph2x = downsampleTexture(glyph, glyph.width * 32, glyph.height * 32);
+        drawTextureToFrame(glyph2x, frameBuffer, 0, 550, glyph2x.width, glyph2x.height);
     }
 
     /**
